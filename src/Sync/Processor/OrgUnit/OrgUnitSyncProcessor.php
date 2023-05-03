@@ -179,7 +179,7 @@ class OrgUnitSyncProcessor extends ObjectSyncProcessor implements IOrgUnitSyncPr
         $this->current_ilias_object = $this->getOrgUnitObject($ilias_id);
 
         if (empty($this->current_ilias_object)) {
-            return;
+            $this->handleCreate($dto);
         }
 
         if ($this->props->updateDTOProperty(IOrgUnitProperties::PROP_TITLE)) {

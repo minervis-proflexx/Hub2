@@ -29,10 +29,16 @@ trait Helper
             'ê' => 'e',
             'Á' => 'A',
             'ß' => 'ss',
+<<<<<<< HEAD
             '\'' => '',
             ' ' => '',
             '-' => '',
             '.' => '',
+=======
+            ' ' => '',
+            '.' => '',
+            '\'' => ''
+>>>>>>> bbf93703... minervis - recreate objects on fail
         ];
         $string = strtr($string, $replaces);
 

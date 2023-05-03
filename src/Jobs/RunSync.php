@@ -49,6 +49,10 @@ class RunSync extends ilCronJob
      */
     protected $notifier;
     
+
+    protected $run_counts;
+
+
     /**
      * RunSync constructor
      * @param IOrigin[]               $origins
@@ -65,6 +69,7 @@ class RunSync extends ilCronJob
         $this->summary = $summary;
         $this->force_update = $force_update || (getenv('HUB2_FORCED_SYNC') === "true");
         $this->notifier = $notifier;
+        $this->run_counts = 0;
     }
 
     /**
@@ -183,8 +188,12 @@ class RunSync extends ilCronJob
             if (!$global_hook->afterSync($this->origins)) {
                 return ResultFactory::error("there was an error");
             }
-
-            return ResultFactory::ok("everything's fine.");
+            if($this->run_counts < 1) {
+                $this->run_counts += 1;
+                $this->run();
+               
+            }
+            return ResultFactory::ok("everything's fine: " . $this->run_counts . " runs.");
         } catch (Throwable $e) {
             return ResultFactory::error("there was an error");
         }

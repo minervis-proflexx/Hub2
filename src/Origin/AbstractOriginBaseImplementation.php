@@ -3,7 +3,6 @@
 namespace srag\Plugins\Hub2\Origin;
 
 use ilHub2Plugin;
-use srag\DIC\Hub2\DICTrait;
 use srag\Plugins\Hub2\Log\ILog;
 use srag\Plugins\Hub2\MappingStrategy\IMappingStrategyFactory;
 use srag\Plugins\Hub2\Metadata\IMetadataFactory;
@@ -12,8 +11,8 @@ use srag\Plugins\Hub2\Object\DTO\IDataTransferObjectFactory;
 use srag\Plugins\Hub2\Object\HookObject;
 use srag\Plugins\Hub2\Origin\Config\IOriginConfig;
 use srag\Plugins\Hub2\Taxonomy\ITaxonomyFactory;
-use srag\Plugins\Hub2\Utils\Hub2Trait;
 use srag\Plugins\Hub2\Origin\Hook\Config;
+use srag\Plugins\Hub2\Log\Repository as LogRepository;
 
 /**
  * Class AbstractOriginBaseImplementation
@@ -24,11 +23,7 @@ use srag\Plugins\Hub2\Origin\Hook\Config;
  */
 abstract class AbstractOriginBaseImplementation implements IOriginImplementation
 {
-
-    use DICTrait;
-    use Hub2Trait;
-
-    const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
+    public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
     /**
      * @var IMappingStrategyFactory
      */
@@ -60,10 +55,6 @@ abstract class AbstractOriginBaseImplementation implements IOriginImplementation
 
     /**
      * AbstractOriginImplementation constructor
-     * @param IOriginConfig              $config
-     * @param IDataTransferObjectFactory $factory
-     * @param IMetadataFactory           $metadataFactory
-     * @param ITaxonomyFactory           $taxonomyFactory
      */
     public function __construct(
         IOriginConfig $config,
@@ -73,7 +64,7 @@ abstract class AbstractOriginBaseImplementation implements IOriginImplementation
         IMappingStrategyFactory $mapping_strategy,
         IOrigin $origin
     ) {
-        /** @noRector  include once for Origins*/
+        /** @noRector  include once for Origins */
         include_once "./Customizing/global/plugins/Services/Cron/CronHook/Hub2/vendor/autoload.php";
         $this->originConfig = $config;
         $this->factory = $factory;
@@ -98,7 +89,7 @@ abstract class AbstractOriginBaseImplementation implements IOriginImplementation
     {
         return $this->factory;
     }
-    
+
     public function hookConfig() : Config
     {
         return new Config(
@@ -106,18 +97,11 @@ abstract class AbstractOriginBaseImplementation implements IOriginImplementation
         );
     }
 
-    /**
-     * @param IDataTransferObject $dto
-     * @return ILog
-     */
-    protected final function log(IDataTransferObject $dto = null) : ILog
+    final protected function log(IDataTransferObject $dto = null) : ILog
     {
-        return self::logs()->factory()->originLog($this->origin, null, $dto);
+        return LogRepository::getInstance()->factory()->originLog($this->origin, null, $dto);
     }
 
-    /**
-     * @return IMappingStrategyFactory
-     */
     final protected function mapping() : IMappingStrategyFactory
     {
         return $this->mapping_strategy_factory;
@@ -144,7 +128,7 @@ abstract class AbstractOriginBaseImplementation implements IOriginImplementation
     /**
      * @inheritdoc
      */
-    public function overrideStatus(HookObject $hook)
+    public function overrideStatus(HookObject $hook) : void
     {
         // TODO: Implement overrideStatus() method.
     }
@@ -157,13 +141,18 @@ abstract class AbstractOriginBaseImplementation implements IOriginImplementation
         return [];
     }
 
-    public function handleNoLongerDeliveredObject(HookObject $hook)
+    public function handleNoLongerDeliveredObject(HookObject $hook) : void
     {
         // TODO: Implement handleOutdated() method.
     }
 
-    public function handleAllObjects(HookObject $hook)
+    public function handleAllObjects(HookObject $hook) : void
     {
         // TODO: Implement handleAllObjects() method.
+    }
+
+    public function canDroppedFileContentBestored(string $content) : bool
+    {
+        return true;
     }
 }

@@ -4,6 +4,7 @@ namespace srag\Plugins\Hub2\Shortlink\Course;
 
 use srag\Plugins\Hub2\Shortlink\AbstractRepositoryLink;
 use srag\Plugins\Hub2\Shortlink\IObjectLink;
+use ILIAS\Data\URI;
 
 /**
  * Class CourseLink
@@ -12,8 +13,17 @@ use srag\Plugins\Hub2\Shortlink\IObjectLink;
  */
 class CourseLink extends AbstractRepositoryLink implements IObjectLink
 {
-    public function getAccessDeniedLink() : string
+    public function getAccessDeniedLink(): string
     {
-        return $this->getILIASId();
+        $link = \ilLink::_getLink($this->getILIASId());
+
+        $uri_builder = new URI($link);
+        $query = $uri_builder->getQuery();
+        $uri = '' . $uri_builder->getPath();
+        if ($query) {
+            $uri .= '?' . $query;
+        }
+
+        return $uri;
     }
 }

@@ -15,15 +15,11 @@ use ilObject2;
  */
 class CourseActivities implements ICourseActivities
 {
-
     /**
      * @var ilDB
      */
     protected $db;
 
-    /**
-     * @param ilDBInterface $db
-     */
     public function __construct(ilDBInterface $db)
     {
         $this->db = $db;

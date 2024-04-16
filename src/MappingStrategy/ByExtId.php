@@ -28,6 +28,16 @@ use srag\Plugins\Hub2\Object\User\IUserDTO;
  */
 class ByExtId extends AMappingStrategy implements IMappingStrategy
 {
+    /**
+     * @var \ilDBInterface
+     */
+    private $db;
+
+    public function __construct()
+    {
+        global $DIC;
+        $this->db = $DIC->database();
+    }
 
     /**
      * @inheritDoc
@@ -64,19 +74,25 @@ class ByExtId extends AMappingStrategy implements IMappingStrategy
                 break;
 
             default:
-                throw new HubException("Cannot find ILIAS id for type=" . get_class($dto) . ",ext_id=" . $dto->getExtId() . "!");
-                break;
+                throw new HubException(
+                    "Cannot find ILIAS id for type=" . get_class($dto) . ",ext_id=" . $dto->getExtId() . "!"
+                );
         }
 
-        $result = self::dic()->database()->queryF('SELECT ilias_id FROM ' . $table_name . ' WHERE ext_id=%s',
-            [ilDBConstants::T_TEXT], [$dto->getExtId()]);
+        $result = $this->db->queryF(
+            'SELECT DISTINCT ilias_id FROM ' . $table_name . ' WHERE ext_id=%s',
+            [ilDBConstants::T_TEXT],
+            [$dto->getExtId()]
+        );
 
         if ($result->rowCount() > 0) {
             if ($result->rowCount() > 1) {
-                throw new HubException("Multiple ILIAS id's for type=" . $table_name . ",ext_id=" . $dto->getExtId() . " found!");
+                throw new HubException(
+                    "Multiple ILIAS id's for type=" . $table_name . ",ext_id=" . $dto->getExtId() . " found!"
+                );
             }
 
-            return intval($result->fetchAssoc()["ilias_id"]);
+            return (int) $result->fetchAssoc()["ilias_id"];
         }
 
         return 0;

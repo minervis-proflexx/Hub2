@@ -12,7 +12,6 @@ use srag\Plugins\Hub2\Origin\Config\OriginConfig;
  */
 class UserOriginConfig extends OriginConfig implements IUserOriginConfig
 {
-
     /**
      * @var array
      */
@@ -40,12 +39,9 @@ class UserOriginConfig extends OriginConfig implements IUserOriginConfig
      */
     public function getILIASLoginField() : int
     {
-        return intval($this->get(self::LOGIN_FIELD));
+        return (int) $this->get(self::LOGIN_FIELD);
     }
 
-    /**
-     * @return bool
-     */
     public function isKeepCase() : bool
     {
         return (bool) $this->get(self::LOGIN_KEEP_CASE);

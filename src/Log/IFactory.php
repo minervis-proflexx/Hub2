@@ -15,26 +15,19 @@ use Throwable;
  */
 interface IFactory
 {
-
-    /**
-     * @return ILog
-     */
     public function log() : ILog;
 
     /**
      * @param IOrigin|null             $origin
      * @param IObject|null             $object
      * @param IDataTransferObject|null $dto
-     * @return ILog
      */
     public function originLog(IOrigin $origin = null, IObject $object = null, IDataTransferObject $dto = null) : ILog;
 
     /**
-     * @param Throwable                $ex
      * @param IOrigin|null             $origin
      * @param IObject|null             $object
      * @param IDataTransferObject|null $dto
-     * @return ILog
      */
     public function exceptionLog(
         Throwable $ex,
@@ -43,9 +36,5 @@ interface IFactory
         IDataTransferObject $dto = null
     ) : ILog;
 
-    /**
-     * @param stdClass $data
-     * @return ILog
-     */
     public function fromDB(stdClass $data) : ILog;
 }

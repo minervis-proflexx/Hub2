@@ -12,41 +12,8 @@ use srag\Plugins\Hub2\UI\OriginConfig\OriginConfigFormGUI;
  */
 class GroupMembershipOriginConfigFormGUI extends OriginConfigFormGUI
 {
-
     /**
      * @var ARGroupMembershipOrigin
      */
     protected $origin;
-
-    /**
-     * @inheritdoc
-     */
-    protected function addSyncConfig()
-    {
-        parent::addSyncConfig();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function addPropertiesNew()
-    {
-        parent::addPropertiesNew();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function addPropertiesUpdate()
-    {
-        parent::addPropertiesUpdate();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function addPropertiesDelete()
-    {
-        parent::addPropertiesDelete();
-    }
 }

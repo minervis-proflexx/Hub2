@@ -11,8 +11,7 @@ use srag\Plugins\Hub2\Object\IObjectRepository;
  */
 class FakeIliasMembershipObject extends FakeIliasObject
 {
-
-    const GLUE = IObjectRepository::GLUE;
+    public const GLUE = IObjectRepository::GLUE;
     /**
      * @var int
      */
@@ -36,12 +35,11 @@ class FakeIliasMembershipObject extends FakeIliasObject
     }
 
     /**
-     * @param string $id
      * @return FakeIliasMembershipObject
      */
     public static function loadInstanceWithConcatenatedId(string $id)
     {
-        list($container_id_ilias, $user_id_ilias) = explode(self::GLUE, $id);
+        [$container_id_ilias, $user_id_ilias] = explode(self::GLUE, $id);
 
         return new self((int) $container_id_ilias, (int) $user_id_ilias);
     }
@@ -54,34 +52,22 @@ class FakeIliasMembershipObject extends FakeIliasObject
         return $this->id;
     }
 
-    /**
-     * @return int
-     */
     public function getUserIdIlias() : int
     {
         return $this->user_id_ilias;
     }
 
-    /**
-     * @param int $user_id_ilias
-     */
-    public function setUserIdIlias(int $user_id_ilias)
+    public function setUserIdIlias(int $user_id_ilias) : void
     {
         $this->user_id_ilias = $user_id_ilias;
     }
 
-    /**
-     * @return int
-     */
     public function getContainerIdIlias() : int
     {
         return $this->container_id_ilias;
     }
 
-    /**
-     * @param int $container_id_ilias
-     */
-    public function setContainerIdIlias(int $container_id_ilias)
+    public function setContainerIdIlias(int $container_id_ilias) : void
     {
         $this->container_id_ilias = $container_id_ilias;
     }
@@ -89,7 +75,7 @@ class FakeIliasMembershipObject extends FakeIliasObject
     /**
      *
      */
-    public function initId()
+    public function initId() : void
     {
         $this->setId(implode(self::GLUE, [$this->container_id_ilias, $this->user_id_ilias]));
     }

@@ -10,21 +10,20 @@ namespace srag\Plugins\Hub2\Object\DTO;
  */
 trait DidacticTemplateAwareDataTransferObject
 {
-    
     /**
      * @var int
      */
     protected $didactic_template_id;
-    
+
     public function setDidacticTemplateId(int $id) : IDidacticTemplateAwareDataTransferObject
     {
         $this->didactic_template_id = $id;
-        
+
         return $this;
     }
-    
+
     /**
-     * @return int $id
+     * @return int|null $id
      */
     public function getDidacticTemplateId() : ?int
     {

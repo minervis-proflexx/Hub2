@@ -4,7 +4,6 @@ namespace srag\Plugins\Hub2\Object\User;
 
 use DateTime;
 use InvalidArgumentException;
-use srag\ActiveRecordConfig\Hub2\ActiveRecordConfig;
 use srag\Plugins\Hub2\Exception\LanguageCodeException;
 use srag\Plugins\Hub2\MappingStrategy\MappingStrategyAwareDataTransferObject;
 use srag\Plugins\Hub2\Object\DTO\DataTransferObject;
@@ -19,15 +18,16 @@ use srag\Plugins\Hub2\Object\LanguageCheck;
  */
 class UserDTO extends DataTransferObject implements IUserDTO
 {
+    private const SQL_DATE_FORMAT = "Y-m-d H:i:s";
 
     use MetadataAwareDataTransferObject;
     use MappingStrategyAwareDataTransferObject;
     use LanguageCheck;
 
-    const AUTH_MODE_LDAP_2 = 'ldap_2';
-    const AUTH_MODE_LDAP_3 = 'ldap_3';
-    const AUTH_MODE_LDAP_4 = 'ldap_4';
-    const AUTH_MODE_LDAP_5 = 'ldap_5';
+    public const AUTH_MODE_LDAP_2 = 'ldap_2';
+    public const AUTH_MODE_LDAP_3 = 'ldap_3';
+    public const AUTH_MODE_LDAP_4 = 'ldap_4';
+    public const AUTH_MODE_LDAP_5 = 'ldap_5';
     /**
      * @var array
      */
@@ -51,6 +51,7 @@ class UserDTO extends DataTransferObject implements IUserDTO
             self::AUTH_MODE_LDAP_3,
             self::AUTH_MODE_LDAP_4,
             self::AUTH_MODE_LDAP_5,
+            self::AUTH_MODE_OIDC
         ];
     /**
      * @var string
@@ -88,6 +89,10 @@ class UserDTO extends DataTransferObject implements IUserDTO
      * @var string
      */
     protected $email;
+    /**
+     * @var string
+     */
+    protected $secondEmail;
     /**
      * @var string
      */
@@ -168,7 +173,7 @@ class UserDTO extends DataTransferObject implements IUserDTO
      * @var array
      * @description usr_prop_ilias_roles_info
      */
-    protected $iliasRoles = array(self::USER_DEFAULT_ROLE);
+    protected $iliasRoles = [self::USER_DEFAULT_ROLE];
 
     /**
      * @return string
@@ -303,6 +308,24 @@ class UserDTO extends DataTransferObject implements IUserDTO
     {
         $this->email = $email;
 
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSecondEmail()
+    {
+        return $this->secondEmail;
+    }
+
+    /**
+     * @param string $secondEmail
+     * @return UserDTO
+     */
+    public function setSecondEmail($secondEmail)
+    {
+        $this->secondEmail = $secondEmail;
         return $this;
     }
 
@@ -581,12 +604,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
     }
 
     /**
-     * @param DateTime $timeLimitFrom
      * @return UserDTO
      */
     public function setTimeLimitFrom(DateTime $timeLimitFrom)
     {
-        $this->timeLimitFrom = $timeLimitFrom->format(ActiveRecordConfig::SQL_DATE_FORMAT);
+        $this->timeLimitFrom = $timeLimitFrom->format(self::SQL_DATE_FORMAT);
 
         return $this;
     }
@@ -600,12 +622,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
     }
 
     /**
-     * @param DateTime $timeLimitUntil
      * @return UserDTO
      */
     public function setTimeLimitUntil(DateTime $timeLimitUntil)
     {
-        $this->timeLimitUntil = $timeLimitUntil->format(ActiveRecordConfig::SQL_DATE_FORMAT);
+        $this->timeLimitUntil = $timeLimitUntil->format(self::SQL_DATE_FORMAT);
 
         return $this;
     }
@@ -638,7 +659,6 @@ class UserDTO extends DataTransferObject implements IUserDTO
     }
 
     /**
-     * @param DateTime $birthday
      * @return UserDTO
      */
     public function setBirthday(DateTime $birthday)
@@ -721,7 +741,7 @@ class UserDTO extends DataTransferObject implements IUserDTO
      * @throws LanguageCodeException if the passed $language is not a valid
      *                  ILIAS language code
      */
-    public function setLanguage($language)
+    public function setLanguage(string $language)
     {
         self::checkLanguageCode($language);
 
@@ -730,10 +750,11 @@ class UserDTO extends DataTransferObject implements IUserDTO
         return $this;
     }
 
-    function __toString()
+    public function __toString()
     {
         return implode(
-            ', ', [
+            ', ',
+            [
                 "ext_id: " . $this->getExtId(),
                 "period: " . $this->getPeriod(),
                 "firstname: " . $this->getFirstname(),

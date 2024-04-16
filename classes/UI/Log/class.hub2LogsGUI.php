@@ -4,6 +4,7 @@
 
 use srag\Plugins\Hub2\UI\Data\DataTableGUI;
 use srag\Plugins\Hub2\UI\Log\LogsTableGUI;
+use srag\Plugins\Hub2\Log\Repository as LogRepository;
 
 /**
  * Class LogsGUI
@@ -12,25 +13,26 @@ use srag\Plugins\Hub2\UI\Log\LogsTableGUI;
  */
 class hub2LogsGUI extends hub2MainGUI
 {
-
-    const CMD_APPLY_FILTER = "applyFilter";
-    const CMD_RESET_FILTER = "resetFilter";
-    const CMD_SHOW_LOGS_OF_EXT_ID = "showLogsOfExtID";
-    const SUBTAB_LOGS = "subtab_logs";
-    const LANG_MODULE_LOGS = "logs";
-    const CMD_CLEAR = 'clear';
+    public const CMD_APPLY_FILTER = "applyFilter";
+    public const CMD_RESET_FILTER = "resetFilter";
+    public const CMD_SHOW_LOGS_OF_EXT_ID = "showLogsOfExtID";
+    public const SUBTAB_LOGS = "subtab_logs";
+    public const LANG_MODULE_LOGS = "logs";
+    public const CMD_CLEAR = 'clear';
+    private $log_repo;
     /**
      * @var ilToolbarGUI
      */
     protected $toolbar;
-    
+
     public function __construct()
     {
         parent::__construct();
         global $DIC;
         $this->toolbar = $DIC['ilToolbar'];
+        $this->log_repo = LogRepository::getInstance();
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -64,13 +66,10 @@ class hub2LogsGUI extends hub2MainGUI
 
     /**
      * @param string $cmd
-     * @return LogsTableGUI
      */
     protected function getLogsTable($cmd = self::CMD_INDEX) : LogsTableGUI
     {
-        $table = new LogsTableGUI($this, $cmd);
-
-        return $table;
+        return new LogsTableGUI($this, $cmd);
     }
 
     /**
@@ -79,18 +78,18 @@ class hub2LogsGUI extends hub2MainGUI
     protected function index()/*: void*/
     {
         $this->toolbar->addButton(
-            $this->plugin->txt('clear_logs'),
+            $this->plugin->txt('logs_clear_logs'),
             $this->ctrl->getLinkTarget($this, self::CMD_CLEAR)
         );
-        
+
         $table = $this->getLogsTable();
 
         $this->tpl->setContent($table->getHTML());
     }
-    
+
     protected function clear()
     {
-        self::logs()->deleteOldLogs(0);
+        $this->log_repo->deleteOldLogs(0);
         $this->ctrl->redirect($this, self::CMD_INDEX);
     }
 
@@ -101,7 +100,11 @@ class hub2LogsGUI extends hub2MainGUI
     {
         $table = $this->getLogsTable(self::CMD_APPLY_FILTER);
 
-        $table->writeFilterToSession();
+        try {
+            $table->writeFilterToSession();
+        } catch (Throwable $t) {
+            // Ignore
+        }
 
         $table->resetOffset();
 
@@ -129,7 +132,7 @@ class hub2LogsGUI extends hub2MainGUI
      */
     protected function showLogsOfExtID()/*: void*/
     {
-        $origin_id = intval(filter_input(INPUT_GET, DataTableGUI::F_ORIGIN_ID));
+        $origin_id = (int) filter_input(INPUT_GET, DataTableGUI::F_ORIGIN_ID);
         $ext_id = filter_input(INPUT_GET, DataTableGUI::F_EXT_ID);
 
         $table = $this->getLogsTable(self::CMD_RESET_FILTER);

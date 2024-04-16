@@ -11,11 +11,6 @@ use srag\Plugins\Hub2\Metadata\IMetadata;
  */
 interface IMetadataAwareDataTransferObject extends IDataTransferObject
 {
-
-    /**
-     * @param IMetadata $IMetadata
-     * @return IMetadataAwareDataTransferObject
-     */
     public function addMetadata(IMetadata $IMetadata) : IMetadataAwareDataTransferObject;
 
     /**

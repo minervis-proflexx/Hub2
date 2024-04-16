@@ -8,6 +8,7 @@ use ilObjUser;
 use ilObjUserGUI;
 use srag\Plugins\Hub2\Shortlink\AbstractBaseLink;
 use srag\Plugins\Hub2\Shortlink\IObjectLink;
+use srag\Plugins\Hub2\Object\ARObject;
 
 /**
  * Class UserLink
@@ -16,6 +17,22 @@ use srag\Plugins\Hub2\Shortlink\IObjectLink;
  */
 class UserLink extends AbstractBaseLink implements IObjectLink
 {
+    /**
+     * @var \ilAccessHandler
+     */
+    private $access;
+    /**
+     * @var \ilCtrlInterface
+     */
+    private $ctrl;
+
+    public function __construct(ARObject $object)
+    {
+        global $DIC;
+        $this->access = $DIC->access();
+        $this->ctrl = $DIC->ctrl();
+        parent::__construct($object);
+    }
 
     /**
      * @inheritdoc
@@ -39,7 +56,7 @@ class UserLink extends AbstractBaseLink implements IObjectLink
             return true;
         }
 
-        return self::dic()->access()->checkAccess('read', '', 7); // Read access to user administration
+        return $this->access->checkAccess('read', '', 7); // Read access to user administration
     }
 
     /**
@@ -63,9 +80,9 @@ class UserLink extends AbstractBaseLink implements IObjectLink
      */
     public function getAccessGrantedInternalLink() : string
     {
-        self::dic()->ctrl()->setParameterByClass(ilObjUserGUI::class, "ref_id", 7);
-        self::dic()->ctrl()->setParameterByClass(ilObjUserGUI::class, "obj_id", $this->object->getILIASId());
+        $this->ctrl->setParameterByClass(ilObjUserGUI::class, "ref_id", 7);
+        $this->ctrl->setParameterByClass(ilObjUserGUI::class, "obj_id", $this->object->getILIASId());
 
-        return self::dic()->ctrl()->getLinkTargetByClass([ilAdministrationGUI::class, ilObjUserGUI::class], "view");
+        return $this->ctrl->getLinkTargetByClass([ilAdministrationGUI::class, ilObjUserGUI::class], "view");
     }
 }

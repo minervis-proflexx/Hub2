@@ -14,15 +14,11 @@ use ilObjGroup;
  */
 class GroupActivities implements IGroupActivities
 {
-
     /**
      * @var ilDB
      */
     protected $db;
 
-    /**
-     * @param ilDBInterface $db
-     */
     public function __construct(ilDBInterface $db)
     {
         $this->db = $db;

@@ -21,10 +21,7 @@ use srag\Plugins\Hub2\Object\Session\ARSession;
 use srag\Plugins\Hub2\Object\SessionMembership\ARSessionMembership;
 use srag\Plugins\Hub2\Object\User\ARUser;
 use srag\Plugins\Hub2\Origin\User\ARUserOrigin;
-use srag\Plugins\Hub2\Utils\Hub2Trait;
-use srag\RemovePluginDataConfirm\Hub2\PluginUninstallTrait;
 use srag\Plugins\Hub2\Jobs\CronNotifier;
-use srag\Plugins\Hub2\Jobs\Notifier;
 
 /**
  * Class ilHub2Plugin
@@ -33,43 +30,21 @@ use srag\Plugins\Hub2\Jobs\Notifier;
  */
 class ilHub2Plugin extends ilCronHookPlugin
 {
+    public const PLUGIN_ID = 'hub2';
+    public const PLUGIN_NAME = 'Hub2';
+    /**
+     * @var ilHub2Plugin|null
+     */
+    protected static $instance = null;
 
-    use PluginUninstallTrait;
-    use Hub2Trait;
-
-    const PLUGIN_ID = 'hub2';
-    const PLUGIN_NAME = 'Hub2';
-    const PLUGIN_CLASS_NAME = self::class;
-    const REMOVE_PLUGIN_DATA_CONFIRM_CLASS_NAME = hub2RemoveDataConfirm::class;
-    /**
-     * @var self
-     */
-    protected static $instance;
-    /**
-     * @var CronNotifier
-     */
-    protected $notifier;
-    
-    public function __construct(Notifier $notifier = null)
-    {
-        parent::__construct();
-        $this->notifier = $notifier ?? new CronNotifier();
-    }
-    
-    /**
-     * @return string
-     */
     public function getPluginName() : string
     {
         return self::PLUGIN_NAME;
     }
 
-    /**
-     * @return self
-     */
     public static function getInstance() : self
     {
-        if (self::$instance === null) {
+        if (!self::$instance instanceof \ilHub2Plugin) {
             self::$instance = new self();
         }
 
@@ -90,8 +65,7 @@ class ilHub2Plugin extends ilCronHookPlugin
      */
     public function getCronJobInstance(/*string*/
         $a_job_id
-    )/*: ?ilCronJob*/
-    {
+    ) {/*: ?ilCronJob*/
         switch ($a_job_id) {
             case RunSync::CRON_JOB_ID:
                 return new RunSync(new CronNotifier());
@@ -109,39 +83,39 @@ class ilHub2Plugin extends ilCronHookPlugin
      */
     public function promoteGlobalScreenProvider() : AbstractStaticPluginMainMenuProvider
     {
-        return new Menu(self::dic()->dic(), $this);
+        global $DIC;
+        return new Menu($DIC, $this);
     }
 
     /**
      * @inheritdoc
      */
-    protected function deleteData()/*: void*/
+    protected function afterUninstall()/*: void*/
     {
-        self::dic()->database()->dropTable(ARUserOrigin::TABLE_NAME, false);
-        self::dic()->database()->dropTable(ARUser::TABLE_NAME, false);
-        self::dic()->database()->dropTable(ARCourse::TABLE_NAME, false);
-        self::dic()->database()->dropTable(ARCourseMembership::TABLE_NAME, false);
-        self::dic()->database()->dropTable(ARCategory::TABLE_NAME, false);
-        self::dic()->database()->dropTable(ARSession::TABLE_NAME, false);
-        self::dic()->database()->dropTable(ARGroup::TABLE_NAME, false);
-        self::dic()->database()->dropTable(ARGroupMembership::TABLE_NAME, false);
-        self::dic()->database()->dropTable(ARSessionMembership::TABLE_NAME, false);
-        self::dic()->database()->dropTable(ArConfig::TABLE_NAME, false);
-        self::dic()->database()->dropTable(ArConfigOld::TABLE_NAME, false);
-        self::dic()->database()->dropTable(AROrgUnit::TABLE_NAME, false);
-        self::dic()->database()->dropTable(AROrgUnitMembership::TABLE_NAME, false);
-        self::dic()->database()->dropTable(Log::TABLE_NAME, false);
-        self::dic()->database()->dropAutoIncrementTable(Log::TABLE_NAME);
-        self::dic()->database()->dropTable(ARCompetenceManagement::TABLE_NAME, false);
+        $this->getDBInstance()->dropTable(ARUserOrigin::TABLE_NAME, false);
+        $this->getDBInstance()->dropTable(ARUser::TABLE_NAME, false);
+        $this->getDBInstance()->dropTable(ARCourse::TABLE_NAME, false);
+        $this->getDBInstance()->dropTable(ARCourseMembership::TABLE_NAME, false);
+        $this->getDBInstance()->dropTable(ARCategory::TABLE_NAME, false);
+        $this->getDBInstance()->dropTable(ARSession::TABLE_NAME, false);
+        $this->getDBInstance()->dropTable(ARGroup::TABLE_NAME, false);
+        $this->getDBInstance()->dropTable(ARGroupMembership::TABLE_NAME, false);
+        $this->getDBInstance()->dropTable(ARSessionMembership::TABLE_NAME, false);
+        $this->getDBInstance()->dropTable(ArConfig::TABLE_NAME, false);
+        $this->getDBInstance()->dropTable(ArConfigOld::TABLE_NAME, false);
+        $this->getDBInstance()->dropTable(AROrgUnit::TABLE_NAME, false);
+        $this->getDBInstance()->dropTable(AROrgUnitMembership::TABLE_NAME, false);
+        $this->getDBInstance()->dropTable(Log::TABLE_NAME, false);
+        $this->getDBInstance()->dropTable(ARCompetenceManagement::TABLE_NAME, false);
 
         ilUtil::delDir(ILIAS_DATA_DIR . "/hub/");
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function shouldUseOneUpdateStepOnly() : bool
+    protected function getDBInstance() : ilDBInterface
     {
-        return false;
+        return property_exists(
+            $this,
+            'db'
+        ) && $this->db !== null && $this->db instanceof ilDBInterface ? $this->db : $GLOBALS['DIC']->database();
     }
 }

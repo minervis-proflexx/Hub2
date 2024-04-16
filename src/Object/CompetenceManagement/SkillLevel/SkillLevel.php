@@ -9,7 +9,6 @@ namespace srag\Plugins\Hub2\Object\CompetenceManagement\SkillLevel;
  */
 class SkillLevel implements ISkillLevel
 {
-
     /**
      * @var string
      */
@@ -25,9 +24,6 @@ class SkillLevel implements ISkillLevel
 
     /**
      * SkillLevel constructor
-     * @param string $ext_id
-     * @param string $title
-     * @param string $description
      */
     public function __construct(string $ext_id, string $title = "", string $description = "")
     {
@@ -92,6 +88,7 @@ class SkillLevel implements ISkillLevel
 
     /**
      * @inheritdoc
+     * @return array{ext_id: string, title: string, description: string}
      */
     public function jsonSerialize() : array
     {

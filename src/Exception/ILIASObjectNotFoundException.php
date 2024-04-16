@@ -12,15 +12,11 @@ use srag\Plugins\Hub2\Object\IObject;
  */
 class ILIASObjectNotFoundException extends HubException
 {
-
     /**
      * @var IObject
      */
     protected $object;
 
-    /**
-     * @param IObject $object
-     */
     public function __construct(IObject $object)
     {
         parent::__construct("ILIAS object not found for: {$object}");

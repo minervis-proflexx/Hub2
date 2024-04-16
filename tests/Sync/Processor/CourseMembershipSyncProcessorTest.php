@@ -24,10 +24,9 @@ use srag\Plugins\Hub2\Sync\Processor\FakeIliasObject;
  */
 class CourseMembershipSyncProcessorTest extends AbstractSyncProcessorTests
 {
-
-    const COURSE_REF_ID = 57;
-    const USER_ID = 6;
-    const IL_CRS_TUTOR_123 = 'il_crs_tutor_123';
+    public const COURSE_REF_ID = 57;
+    public const USER_ID = 6;
+    public const IL_CRS_TUTOR_123 = 'il_crs_tutor_123';
     /**
      * @var MockInterface|ilCourseParticipants
      */
@@ -53,7 +52,9 @@ class CourseMembershipSyncProcessorTest extends AbstractSyncProcessorTests
     protected function initDTO()
     {
         $this->dto = new CourseMembershipDTO('extIdOfCourse', 'extIdOfUser');
-        $this->dto->setRole(CourseMembershipDTO::ROLE_TUTOR)->setUserId(self::USER_ID)->setCourseId(self::COURSE_REF_ID);
+        $this->dto->setRole(CourseMembershipDTO::ROLE_TUTOR)->setUserId(self::USER_ID)->setCourseId(
+            self::COURSE_REF_ID
+        );
     }
 
     protected function initHubObject()
@@ -68,7 +69,9 @@ class CourseMembershipSyncProcessorTest extends AbstractSyncProcessorTests
     protected function initILIASObject()
     {
         $this->ilObject = Mockery::mock(FakeIliasObject::class);
-        $this->ilObject->shouldReceive('getId')->andReturn(self::COURSE_REF_ID . FakeIliasMembershipObject::GLUE . self::USER_ID);
+        $this->ilObject->shouldReceive('getId')->andReturn(
+            self::COURSE_REF_ID . FakeIliasMembershipObject::GLUE . self::USER_ID
+        );
 
         Mockery::mock('alias:' . ilObject2::class)->shouldReceive("_exists")->withArgs(
             [
@@ -82,7 +85,7 @@ class CourseMembershipSyncProcessorTest extends AbstractSyncProcessorTests
         $this->ilCourseParticipants = Mockery::mock("overload:" . ilCourseParticipants::class, ilParticipants::class);
         $this->ilObjCourse->shouldReceive("getMembersObject")->once()->andReturn($this->ilCourseParticipants);
 
-        define(IL_CRS_TUTOR, 3);
+        define('IL_CRS_TUTOR', 3);
     }
 
     /**
@@ -90,8 +93,10 @@ class CourseMembershipSyncProcessorTest extends AbstractSyncProcessorTests
      */
     protected function setUp()
     {
-        $this->initOrigin(new CourseMembershipProperties(['update_dto_role' => true]),
-            new CourseMembershipOriginConfig([]));
+        $this->initOrigin(
+            new CourseMembershipProperties(['update_dto_role' => true]),
+            new CourseMembershipOriginConfig([])
+        );
         $this->setupGeneralDependencies();
         $this->initHubObject();
         $this->initILIASObject();
@@ -105,8 +110,11 @@ class CourseMembershipSyncProcessorTest extends AbstractSyncProcessorTests
 
     public function test_create_course_membership()
     {
-        $processor = new CourseMembershipSyncProcessor($this->origin, $this->originImplementation,
-            $this->statusTransition);
+        $processor = new CourseMembershipSyncProcessor(
+            $this->origin,
+            $this->originImplementation,
+            $this->statusTransition
+        );
 
         $this->iobject->shouldReceive('getStatus')->andReturn(IObject::STATUS_TO_CREATE);
         $this->iobject->shouldReceive('setData')->once()->with($this->dto->getData());
@@ -114,28 +122,34 @@ class CourseMembershipSyncProcessorTest extends AbstractSyncProcessorTests
         $this->originImplementation->shouldReceive('afterCreateILIASObject')->once();
 
         $this->ilCourseParticipants->shouldReceive('add')->once()->withArgs(
-            array(
-                $this->dto->getUserId(),
-                $this->dto->getRole(),
-            )
+            [$this->dto->getUserId(), $this->dto->getRole()]
         );
 
-        $this->iobject->shouldReceive('setILIASId')->once()->with(self::COURSE_REF_ID . FakeIliasMembershipObject::GLUE . self::USER_ID);
+        $this->iobject->shouldReceive('setILIASId')->once()->with(
+            self::COURSE_REF_ID . FakeIliasMembershipObject::GLUE . self::USER_ID
+        );
 
         $processor->process($this->iobject, $this->dto);
     }
 
     public function test_update_course_membership()
     {
-        $processor = new CourseMembershipSyncProcessor($this->origin, $this->originImplementation,
-            $this->statusTransition);
+        $processor = new CourseMembershipSyncProcessor(
+            $this->origin,
+            $this->originImplementation,
+            $this->statusTransition
+        );
 
         $this->iobject->shouldReceive('getStatus')->andReturn(IObject::STATUS_TO_UPDATE);
         $this->iobject->shouldReceive('setData')->once()->with($this->dto->getData());
         $this->iobject->shouldReceive('computeHashCode')->once()->andReturn("newHash");
         $this->iobject->shouldReceive('getHashCode')->once()->andReturn("oldHash");
-        $this->iobject->shouldReceive('setILIASId')->once()->with(self::COURSE_REF_ID . FakeIliasMembershipObject::GLUE . self::USER_ID);
-        $this->iobject->shouldReceive('getILIASId')->once()->andReturn(self::COURSE_REF_ID . FakeIliasMembershipObject::GLUE . self::USER_ID);
+        $this->iobject->shouldReceive('setILIASId')->once()->with(
+            self::COURSE_REF_ID . FakeIliasMembershipObject::GLUE . self::USER_ID
+        );
+        $this->iobject->shouldReceive('getILIASId')->once()->andReturn(
+            self::COURSE_REF_ID . FakeIliasMembershipObject::GLUE . self::USER_ID
+        );
 
         $this->originImplementation->shouldReceive('beforeUpdateILIASObject')->once();
         $this->originImplementation->shouldReceive('afterUpdateILIASObject')->once();
@@ -145,10 +159,7 @@ class CourseMembershipSyncProcessorTest extends AbstractSyncProcessorTests
         $this->ilObjCourse->shouldReceive("getRefId")->once()->andReturn(self::COURSE_REF_ID);
 
         $this->ilCourseParticipants->shouldReceive('updateRoleAssignments')->once()->withArgs(
-            array(
-                $this->dto->getUserId(),
-                [self::IL_CRS_TUTOR_123],
-            )
+            [$this->dto->getUserId(), [self::IL_CRS_TUTOR_123]]
         );
 
         $processor->process($this->iobject, $this->dto);
@@ -156,6 +167,5 @@ class CourseMembershipSyncProcessorTest extends AbstractSyncProcessorTests
 
     protected function initDataExpectations()
     {
-
     }
 }

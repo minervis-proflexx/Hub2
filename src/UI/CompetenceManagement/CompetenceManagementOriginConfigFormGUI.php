@@ -18,7 +18,6 @@ use srag\Plugins\Hub2\UI\OriginConfig\OriginConfigFormGUI;
  */
 class CompetenceManagementOriginConfigFormGUI extends OriginConfigFormGUI
 {
-
     /**
      * @var ARCompetenceManagementOrigin
      */
@@ -32,21 +31,12 @@ class CompetenceManagementOriginConfigFormGUI extends OriginConfigFormGUI
         parent::addSyncConfig();
 
         $id_if_no_parent_id = new ilTextInputGUI(
-            self::plugin()
-                ->translate("competencemanagement_id_if_no_parent_id"),
+            $this->plugin->txt("competencemanagement_id_if_no_parent_id"),
             $this->conf(ICompetenceManagementOriginConfig::ID_IF_NO_PARENT_ID)
         );
-        $id_if_no_parent_id->setInfo(self::plugin()->translate("competencemanagement_id_if_no_parent_id_info"));
+        $id_if_no_parent_id->setInfo($this->plugin->txt("competencemanagement_id_if_no_parent_id_info"));
         $id_if_no_parent_id->setValue($this->origin->config()->getIdIfNoParentId());
         $this->addItem($id_if_no_parent_id);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function addPropertiesNew()
-    {
-        parent::addPropertiesNew();
     }
 
     /**
@@ -56,8 +46,10 @@ class CompetenceManagementOriginConfigFormGUI extends OriginConfigFormGUI
     {
         parent::addPropertiesUpdate();
 
-        $cb = new ilCheckboxInputGUI(self::plugin()->translate("competencemanagement_move"),
-            $this->prop(ICompetenceManagementProperties::MOVE));
+        $cb = new ilCheckboxInputGUI(
+            $this->plugin->txt("competencemanagement_move"),
+            $this->prop(ICompetenceManagementProperties::MOVE)
+        );
         $cb->setChecked($this->origin->properties()->get(ICompetenceManagementProperties::MOVE));
         $this->addItem($cb);
     }
@@ -70,18 +62,16 @@ class CompetenceManagementOriginConfigFormGUI extends OriginConfigFormGUI
         parent::addPropertiesDelete();
 
         $delete = new ilRadioGroupInputGUI(
-            self::plugin()
-                ->translate("competencemanagement_delete_mode"),
+            $this->plugin->txt("competencemanagement_delete_mode"),
             $this->prop(ICompetenceManagementProperties::DELETE_MODE)
         );
         $opt = new ilRadioOption(
-            self::plugin()
-                ->translate("competencemanagement_delete_mode_none"), ICompetenceManagementProperties::DELETE_MODE_NONE
+            $this->plugin->txt("competencemanagement_delete_mode_none"),
+            ICompetenceManagementProperties::DELETE_MODE_NONE
         );
         $delete->addOption($opt);
         $opt = new ilRadioOption(
-            self::plugin()
-                ->translate("competencemanagement_delete_mode_delete"),
+            $this->plugin->txt("competencemanagement_delete_mode_delete"),
             ICompetenceManagementProperties::DELETE_MODE_DELETE
         );
         $delete->addOption($opt);

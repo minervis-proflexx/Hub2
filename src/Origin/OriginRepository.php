@@ -3,7 +3,6 @@
 namespace srag\Plugins\Hub2\Origin;
 
 use ilHub2Plugin;
-use srag\DIC\Hub2\DICTrait;
 use srag\Plugins\Hub2\Origin\Category\ARCategoryOrigin;
 use srag\Plugins\Hub2\Origin\CompetenceManagement\ARCompetenceManagementOrigin;
 use srag\Plugins\Hub2\Origin\Course\ARCourseOrigin;
@@ -14,7 +13,6 @@ use srag\Plugins\Hub2\Origin\OrgUnit\AROrgUnitOrigin;
 use srag\Plugins\Hub2\Origin\Session\ARSessionOrigin;
 use srag\Plugins\Hub2\Origin\SessionMembership\ARSessionMembershipOrigin;
 use srag\Plugins\Hub2\Origin\User\ARUserOrigin;
-use srag\Plugins\Hub2\Utils\Hub2Trait;
 
 /**
  * Class OriginRepository
@@ -24,34 +22,39 @@ use srag\Plugins\Hub2\Utils\Hub2Trait;
  */
 class OriginRepository implements IOriginRepository
 {
-
-    use DICTrait;
-    use Hub2Trait;
-
-    const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
+    public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
 
     /**
      * @inheritdoc
      */
-    public function all()
+    public function all() : array
     {
         return array_merge(
-            $this->users(), $this->categories(), $this->courses(), $this->courseMemberships(), $this->groups(),
-            $this->groupMemberships(), $this->sessions(),
-            $this->sessionsMemberships(), $this->orgUnits(), $this->orgUnitMemberships(), $this->competenceManagements()
+            $this->users(),
+            $this->categories(),
+            $this->courses(),
+            $this->courseMemberships(),
+            $this->groups(),
+            $this->groupMemberships(),
+            $this->sessions(),
+            $this->sessionsMemberships(),
+            $this->orgUnits(),
+            $this->orgUnitMemberships(),
+            $this->competenceManagements()
         );
     }
 
     /**
      * @inheritdoc
      */
-    public function allActive()
+    public function allActive() : array
     {
         return array_filter(
-            $this->all(), function ($origin) {
-            /** @var IOrigin $origin */
-            return $origin->isActive();
-        }
+            $this->all(),
+            function ($origin) : bool {
+                /** @var IOrigin $origin */
+                return $origin->isActive();
+            }
         );
     }
 
@@ -140,6 +143,7 @@ class OriginRepository implements IOriginRepository
      */
     public function competenceManagements() : array
     {
-        return ARCompetenceManagementOrigin::where(["object_type" => IOrigin::OBJECT_TYPE_COMPETENCE_MANAGEMENT])->get();
+        return ARCompetenceManagementOrigin::where(["object_type" => IOrigin::OBJECT_TYPE_COMPETENCE_MANAGEMENT])->get(
+        );
     }
 }

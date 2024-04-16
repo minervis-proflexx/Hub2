@@ -11,13 +11,12 @@ use ilUserDefinedData;
  */
 class UDF extends AbstractImplementation implements IMetadataImplementation
 {
-
-    const PREFIX = 'f_';
+    public const PREFIX = 'f_';
 
     /**
      * @inheritdoc
      */
-    public function write()
+    public function write() : void
     {
         $user_id = $this->getIliasId();
         $ilUserDefinedData = new ilUserDefinedData($user_id);

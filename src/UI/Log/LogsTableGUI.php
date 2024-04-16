@@ -2,136 +2,235 @@
 
 namespace srag\Plugins\Hub2\UI\Log;
 
-use hub2LogsGUI;
 use ilDateTime;
 use ilHub2Plugin;
-use ilSelectInputGUI;
-use ilTextInputGUI;
-use srag\CustomInputGUIs\Hub2\DateDurationInputGUI\DateDurationInputGUI;
-use srag\CustomInputGUIs\Hub2\NumberInputGUI\NumberInputGUI;
-use srag\CustomInputGUIs\Hub2\PropertyFormGUI\Items\Items;
-use srag\CustomInputGUIs\Hub2\PropertyFormGUI\PropertyFormGUI;
-use srag\CustomInputGUIs\Hub2\TableGUI\TableGUI;
-use srag\Plugins\Hub2\Log\ILog;
 use srag\Plugins\Hub2\Log\Log;
 use srag\Plugins\Hub2\Object\ARObject;
 use srag\Plugins\Hub2\Origin\AROrigin;
-use srag\Plugins\Hub2\Utils\Hub2Trait;
-use stdClass;
+use srag\Plugins\Hub2\Log\Repository as LogRepository;
+use srag\Plugins\Hub2\UI\Table\TableGUI\TableGUI;
+use srag\Plugins\Hub2\Origin\OriginFactory;
+use srag\Plugins\Hub2\Shortlink\ObjectLinkFactory;
 
 /**
- * Class LogsTableGUI
- * @package srag\Plugins\Hub2\UI\Log
- * @author  studer + raimann ag - Team Custom 1 <support-custom1@studer-raimann.ch>
+ *
  */
-class LogsTableGUI extends TableGUI
+class LogsTableGUI extends \ilTable2GUI
 {
-
-    use Hub2Trait;
-
-    const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
-    const LANG_MODULE = hub2LogsGUI::LANG_MODULE_LOGS;
-
     /**
-     * @inheritdoc
-     * @param ILog $row
+     * @var ilHub2Plugin
      */
-    protected function getColumnValue(string $column, /*array*/ $row, int $format = self::DEFAULT_FORMAT) : string {
-        $value = Items::getter($row, $column);
+    private $plugin;
 
-        switch ($column) {
-            case "level":
-                $value = $this->txt("level_" . $value);
+    private $filtered = [];
+    /**
+     * @var \srag\Plugins\Hub2\Log\IRepository
+     */
+    private $log_repo;
+    /**
+     * @var ObjectLinkFactory
+     */
+    private $link_factory;
+    /**
+     * @var \ILIAS\DI\UIServices
+     */
+    private $ui;
+
+    public function __construct(\hub2LogsGUI $a_parent_obj, $a_parent_cmd)
+    {
+        global $DIC;
+        $ctrl = $DIC->ctrl();
+        $this->plugin = ilHub2Plugin::getInstance();
+        $this->log_repo = LogRepository::getInstance();
+        $this->link_factory = new ObjectLinkFactory();
+        $this->ui = $DIC->ui();
+
+        $this->setPrefix('hub2_');
+        $this->setId('logs');
+        $this->setTitle($this->plugin->txt('logs'));
+        parent::__construct($a_parent_obj, $a_parent_cmd);
+        $this->setFormAction($ctrl->getFormAction($a_parent_obj));
+        $this->setRowTemplate('tpl.std_row_template.html', 'Services/ActiveRecord');
+        $this->initFilter();
+        $this->initColumns();
+        $this->setExternalSegmentation(true);
+        $this->setExternalSorting(true);
+        $this->setExportFormats([self::EXPORT_EXCEL]);
+
+        $this->determineLimit();
+        if ($this->getLimit() > 999) {
+            $this->setLimit(999);
+        }
+        $this->determineOffsetAndOrder();
+        $this->setDefaultOrderDirection("DESC");
+        $this->setDefaultOrderField("date");
+        $this->initTableData();
+    }
+
+    protected function initColumns() : void
+    {
+        $this->addColumn($this->plugin->txt('logs_date'), 'date');
+        $this->addColumn($this->plugin->txt('logs_origin_id')); //, 'origin_id');
+        $this->addColumn($this->plugin->txt('logs_origin_object_type')); //, 'origin_object_type');
+        $this->addColumn($this->plugin->txt('logs_status')); //, 'status');
+        $this->addColumn($this->plugin->txt('logs_object_ext_id')); //, 'object_ext_id');
+        $this->addColumn($this->plugin->txt('logs_object_ilias_id')); //, 'object_ilias_id');
+        $this->addColumn($this->plugin->txt('logs_level')); //, 'level');
+        $this->addColumn($this->plugin->txt('logs_additional_data')); //, 'additional_data');
+//        $this->addColumn($this->plugin->txt('data_table_header_actions')); //TODO
+    }
+
+    protected function fillRow($a_set)
+    {
+        $this->tpl->setCurrentBlock('cell');
+        $this->tpl->setVariable('VALUE', $a_set->getDate()->get(IL_CAL_DATETIME));
+        $this->tpl->parseCurrentBlock();
+
+        $this->tpl->setCurrentBlock('cell');
+        $this->tpl->setVariable('VALUE', $a_set->getOriginId());
+        $this->tpl->parseCurrentBlock();
+
+        $this->tpl->setCurrentBlock('cell');
+        $this->tpl->setVariable(
+            'VALUE',
+            $this->plugin->txt('origin_object_type_' . AROrigin::$object_types[$a_set->getOriginObjectType()])
+        );
+        $this->tpl->parseCurrentBlock();
+
+        $this->tpl->setCurrentBlock('cell');
+        $this->tpl->setVariable(
+            'VALUE',
+            $this->plugin->txt('data_table_status_' . ARObject::$available_status[$a_set->getStatus()])
+        );
+        $this->tpl->parseCurrentBlock();
+
+        $this->tpl->setCurrentBlock('cell');
+        $this->tpl->setVariable('VALUE', $a_set->getObjectExtId());
+        $this->tpl->parseCurrentBlock();
+
+        $this->tpl->setCurrentBlock('cell');
+        $ilias_id = $a_set->getObjectIliasId();
+        $this->tpl->setVariable(
+            'VALUE',
+            $ilias_id === null ? '' : $this->ui->renderer()->render(
+                $this->ui->factory()->link()->standard(
+                    $ilias_id,
+                    $this->link_factory->findByExtId($a_set->getObjectExtId())->getAccessGrantedInternalLink()
+                )->withOpenInNewViewport(true)
+            )
+        );
+        $this->tpl->parseCurrentBlock();
+
+        $this->tpl->setCurrentBlock('cell');
+        $this->tpl->setVariable('VALUE', $this->plugin->txt('logs_level_' . Log::$levels[$a_set->getLevel()]));
+        $this->tpl->parseCurrentBlock();
+
+        $this->tpl->setCurrentBlock('cell');
+        $value = $a_set->getAdditionalData();
+        $value = get_object_vars($value);
+        // stClass to list of key value pairs, seperated by : and newlines
+        $value = implode(
+            "\n",
+            array_map(function ($k, $v) : string {
+                return $k . ': ' . $v;
+            }, array_keys($value), $value)
+        );
+        $this->tpl->setVariable('VALUE', $value);
+        $this->tpl->parseCurrentBlock();
+
+        // Actions
+        // TODO
+    }
+
+    public function initFilter() : void
+    {
+        $this->setDisableFilterHiding(true);
+
+        // Range
+        $range = new \ilDateDurationInputGUI($this->plugin->txt('logs_date'), 'date');
+        $range->setShowTime(true);
+        $range->setStart(null);
+        $range->setEnd(null);
+        $this->addAndReadFilterItem($range);
+
+        // Origin Select
+        $origins = [null => null];
+        $factory = new OriginFactory();
+        foreach ($factory->getAll() as $origin) {
+            $origins[$origin->getId()] = $origin->getTitle();
+        }
+        $origin_select = new \ilSelectInputGUI($this->plugin->txt('logs_origin_id'), 'origin_id');
+        $origin_select->setOptions($origins);
+        $this->addAndReadFilterItem($origin_select);
+
+        // Object Type
+        $object_type_select = new \ilSelectInputGUI(
+            $this->plugin->txt('logs_origin_object_type'),
+            'origin_object_type'
+        );
+        $object_type_select->setOptions([null => null] + AROrigin::$object_types);
+        $this->addAndReadFilterItem($object_type_select);
+
+        // Status
+        $status_select = new \ilSelectInputGUI($this->plugin->txt('logs_status'), 'status');
+        $status_select->setOptions([null => null] + ARObject::$available_status);
+        $this->addAndReadFilterItem($status_select);
+
+        // Ext-ID
+        $ext_id = new \ilTextInputGUI($this->plugin->txt('logs_object_ext_id'), 'object_ext_id');
+        $this->addAndReadFilterItem($ext_id);
+
+        // ILIAS-ID
+        $ilias_id = new \ilTextInputGUI($this->plugin->txt('logs_object_ilias_id'), 'object_ilias_id');
+        $this->addAndReadFilterItem($ilias_id);
+
+        // Level
+        $level_select = new \ilSelectInputGUI($this->plugin->txt('logs_level'), 'level');
+        $level_select->setOptions(
+            [null => null] + array_map(function ($level) : string {
+                return $this->plugin->txt('logs_level_' . $level);
+            }, Log::$levels)
+        );
+        $this->addAndReadFilterItem($level_select);
+
+        // Additional Data
+        $additional_data = new \ilTextInputGUI($this->plugin->txt('logs_additional_data'), 'additional_data');
+        $this->addAndReadFilterItem($additional_data);
+    }
+
+    protected function hasSessionValue(string $field_id) : bool
+    {
+        // Not set on first visit, false on reset filter, string if is set
+        return (isset($_SESSION["form_" . $this->getId()][$field_id]) && $_SESSION["form_" . $this->getId(
+            )][$field_id] !== false);
+    }
+
+    protected function addAndReadFilterItem(\ilFormPropertyGUI $item) : void
+    {
+        $this->addFilterItem($item);
+        if ($this->hasSessionValue($item->getFieldId())) { // Supports filter default values
+            $item->readFromSession();
+        }
+        switch (true) {
+            case ($item instanceof \ilCheckboxInputGUI):
+                $this->filtered[$item->getPostVar()] = $item->getChecked();
                 break;
+            case ($item instanceof \ilDateDurationInputGUI):
+                $this->filtered[$item->getPostVar()]["start"] = $item->getStart() === null
+                    ? null
+                    : $item->getStart()->get(IL_CAL_UNIX);
 
-            case "origin_object_type":
-                $value = self::plugin()->translate("origin_object_type_" . $value);
+                $this->filtered[$item->getPostVar()]["end"] = $item->getEnd() === null
+                    ? null
+                    : $item->getEnd()->get(IL_CAL_UNIX);
                 break;
-
-            case "status":
-                $value = $value ? self::plugin()->translate("data_table_status_" . ARObject::$available_status[$value]) : '';
-                break;
-
-            case "additional_data":
-                if (!is_object($value)) {
-                    $value = json_decode($value);
-                }
-                if (!is_object($value)) {
-                    $value = new stdClass();
-                }
-                $value = get_object_vars($value);
-
-                $value = implode(
-                    "<br>", array_map(
-                        function (string $key, $value) : string {
-                            return "$key: $value";
-                        }, array_keys($value), $value
-                    )
-                );
-
-                if (empty($value)) {
-                    $value = self::plugin()->translate("no_additional_data", hub2LogsGUI::LANG_MODULE_LOGS);
-                }
-                break;
-
             default:
+                $this->filtered[$item->getPostVar()] = $item->getValue();
                 break;
         }
-
-        return strval($value);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getSelectableColumns2() : array
-    {
-        $columns = [
-            "date" => "date",
-            "origin_id" => "origin_id",
-            "origin_object_type" => "origin_object_type",
-            "status" => "status",
-            "object_ext_id" => "object_ext_id",
-            "object_ilias_id" => "object_ilias_id",
-            "title" => "title",
-            "message" => "message",
-            "level" => "level",
-            "additional_data" => "additional_data",
-        ];
-
-        $columns = array_map(
-            function (string $key) : array {
-                return [
-                    "id" => $key,
-                    "default" => true,
-                    "sort" => ($key !== "additional_data"),
-                ];
-            }, $columns
-        );
-
-        return $columns;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function initColumns()/*: void*/
-    {
-        parent::initColumns();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function initCommands()/*: void*/
-    {
-
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function initData()/*: void*/
+    private function initTableData() : void
     {
         $this->setExternalSegmentation(true);
         $this->setExternalSorting(true);
@@ -143,143 +242,99 @@ class LogsTableGUI extends TableGUI
         $this->determineLimit();
         $this->determineOffsetAndOrder();
 
-        $filter = $this->getFilterValues();
+        $filter = $this->filtered;
 
         $title = $filter["title"];
         $message = $filter["message"];
         $date_start = $filter["date"]["start"];
-        if (!empty($date_start)) {
-            $date_start = new ilDateTime(intval($date_start), IL_CAL_UNIX);
-        } else {
-            $date_start = null;
-        }
+        $date_start = empty($date_start) ? null : new ilDateTime((int) $date_start, IL_CAL_UNIX);
         $date_end = $filter["date"]["end"];
-        if (!empty($date_end)) {
-            $date_end = new ilDateTime(intval($date_end), IL_CAL_UNIX);
-        } else {
-            $date_end = null;
-        }
+        $date_end = empty($date_end) ? null : new ilDateTime((int) $date_end, IL_CAL_UNIX);
         $level = $filter["level"];
-        if (!empty($level)) {
-            $level = intval($level);
-        } else {
-            $level = null;
-        }
+        $level = empty($level) ? null : (int) $level;
         $origin_id = $filter["origin_id"];
-        if (!empty($origin_id)) {
-            $origin_id = intval($origin_id);
-        } else {
-            $origin_id = null;
-        }
+        $origin_id = empty($origin_id) ? null : (int) $origin_id;
         $origin_object_type = $filter["origin_object_type"];
         $object_ext_id = $filter["object_ext_id"];
         $object_ilias_id = $filter["object_ilias_id"];
-        if (!empty($object_ilias_id)) {
-            $object_ilias_id = intval($object_ilias_id);
-        } else {
-            $object_ilias_id = null;
-        }
-        $additional_data = $filter["additional_data"];
-        $status = intval($filter["status"]);
+        $object_ilias_id = empty($object_ilias_id) ? null : (int) $object_ilias_id;
+        $additional_data = $filter["additional_data"] ?? '';
+        $status = (int) $filter["status"];
 
         $this->setData(
-            self::logs()
+            $this->log_repo
                 ->getLogs(
-                    $this->getOrderField(), $this->getOrderDirection(), intval($this->getOffset()),
-                    intval($this->getLimit()), $title, $message, $date_start, $date_end, $level, $origin_id,
-                    $origin_object_type, $object_ext_id, $object_ilias_id, $additional_data, $status
+                    $this->getOrderField(),
+                    $this->getOrderDirection(),
+                    $this->getOffset(),
+                    $this->getLimit(),
+                    $title,
+                    $message,
+                    $date_start,
+                    $date_end,
+                    $level,
+                    $origin_id,
+                    $origin_object_type,
+                    $object_ext_id,
+                    $object_ilias_id,
+                    $additional_data,
+                    $status
                 )
         );
 
         $this->setMaxCount(
-            self::logs()
-                ->getLogsCount($title, $message, $date_start, $date_end, $level, $origin_id, $origin_object_type,
-                    $object_ext_id, $object_ilias_id, $additional_data, $status)
+            $this->log_repo
+                ->getLogsCount(
+                    $title,
+                    $message,
+                    $date_start,
+                    $date_end,
+                    $level,
+                    $origin_id,
+                    $origin_object_type,
+                    $object_ext_id,
+                    $object_ilias_id,
+                    $additional_data,
+                    $status
+                )
         );
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function initExport()/*: void*/
-    {
-        $this->setExportFormats([self::EXPORT_CSV, self::EXPORT_EXCEL]);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function initFilterFields()/*: void*/
-    {
-        self::dic()->language()->loadLanguageModule("form");
-
-        $this->filter_fields = [
-            "date" => [
-                PropertyFormGUI::PROPERTY_CLASS => DateDurationInputGUI::class,
-                "setShowTime" => true,
-            ],
-            "origin_id" => [
-                PropertyFormGUI::PROPERTY_CLASS => NumberInputGUI::class,
-                "setMinValue" => 0,
-            ],
-            "origin_object_type" => [
-                PropertyFormGUI::PROPERTY_CLASS => ilSelectInputGUI::class,
-                PropertyFormGUI::PROPERTY_OPTIONS => [
-                        "" => "",
-                    ] + array_map(
-                        function (string $origin_object_type) : string {
-                            return self::plugin()->translate("origin_object_type_" . $origin_object_type);
-                        }, AROrigin::$object_types
-                    ),
-            ],
-            "status" => [
-                PropertyFormGUI::PROPERTY_CLASS => ilSelectInputGUI::class,
-                PropertyFormGUI::PROPERTY_OPTIONS => [
-                        "" => "",
-                    ] + ARObject::$available_status,
-            ],
-            "object_ext_id" => [
-                PropertyFormGUI::PROPERTY_CLASS => ilTextInputGUI::class,
-            ],
-            "object_ilias_id" => [
-                PropertyFormGUI::PROPERTY_CLASS => NumberInputGUI::class,
-                "setMinValue" => 0,
-            ],
-            "title" => [
-                PropertyFormGUI::PROPERTY_CLASS => ilTextInputGUI::class,
-            ],
-            "message" => [
-                PropertyFormGUI::PROPERTY_CLASS => ilTextInputGUI::class,
-            ],
-            "level" => [
-                PropertyFormGUI::PROPERTY_CLASS => ilSelectInputGUI::class,
-                PropertyFormGUI::PROPERTY_OPTIONS => [
-                        "" => "",
-                    ] + array_map(
-                        function (int $level) : string {
-                            return $this->txt("level_" . $level);
-                        }, Log::$levels
-                    ),
-            ],
-            "additional_data" => [
-                PropertyFormGUI::PROPERTY_CLASS => ilTextInputGUI::class,
-            ],
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function initId()/*: void*/
-    {
-        $this->setId("hub2_logs");
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function initTitle()/*: void*/
-    {
-        $this->setTitle($this->txt("logs"));
+    protected function buildTableDataArray(
+        string $sort_by,
+        ?string $title,
+        ?string $message,
+        ?ilDateTime $date_start,
+        ?ilDateTime $date_end,
+        ?int $level,
+        ?int $origin_id,
+        ?string $origin_object_type,
+        ?string $object_ext_id,
+        ?int $object_ilias_id,
+        ?string $additional_data,
+        ?int $status
+    ): array {
+        return array_map(function (ILog $log): array {
+            return [
+                'object' => $log,
+            ];
+        }, $this->log_repo
+            ->getLogs(
+                $sort_by,
+                $this->getOrderDirection(),
+                $this->getOffset(),
+                $this->getLimit(),
+                $title,
+                $message,
+                $date_start,
+                $date_end,
+                $level,
+                $origin_id,
+                $origin_object_type,
+                $object_ext_id,
+                $object_ilias_id,
+                $additional_data,
+                $status
+            ));
     }
 }

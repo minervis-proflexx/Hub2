@@ -3,7 +3,6 @@
 namespace srag\Plugins\Hub2\Sync\Processor;
 
 use ilHub2Plugin;
-use srag\DIC\Hub2\DICTrait;
 use srag\Plugins\Hub2\Origin\IOrigin;
 use srag\Plugins\Hub2\Origin\IOriginImplementation;
 use srag\Plugins\Hub2\Sync\IObjectStatusTransition;
@@ -23,7 +22,6 @@ use srag\Plugins\Hub2\Sync\Processor\OrgUnitMembership\OrgUnitMembershipSyncProc
 use srag\Plugins\Hub2\Sync\Processor\Session\SessionSyncProcessor;
 use srag\Plugins\Hub2\Sync\Processor\SessionMembership\SessionMembershipSyncProcessor;
 use srag\Plugins\Hub2\Sync\Processor\User\UserSyncProcessor;
-use srag\Plugins\Hub2\Utils\Hub2Trait;
 
 /**
  * Class SyncProcessorFactory
@@ -33,11 +31,7 @@ use srag\Plugins\Hub2\Utils\Hub2Trait;
  */
 class SyncProcessorFactory implements ISyncProcessorFactory
 {
-
-    use DICTrait;
-    use Hub2Trait;
-
-    const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
+    public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
     /**
      * @var IOrigin
      */
@@ -55,12 +49,7 @@ class SyncProcessorFactory implements ISyncProcessorFactory
      * @var \ilDBInterface
      */
     protected $database;
-    
-    /**
-     * @param IOrigin                 $origin
-     * @param IOriginImplementation   $implementation
-     * @param IObjectStatusTransition $statusTransition
-     */
+
     public function __construct(
         IOrigin $origin,
         IOriginImplementation $implementation,
@@ -76,7 +65,7 @@ class SyncProcessorFactory implements ISyncProcessorFactory
     /**
      * @inheritdoc
      */
-    public function user()
+    public function user() : \srag\Plugins\Hub2\Sync\Processor\User\UserSyncProcessor
     {
         return new UserSyncProcessor($this->origin, $this->implementation, $this->statusTransition);
     }
@@ -84,7 +73,7 @@ class SyncProcessorFactory implements ISyncProcessorFactory
     /**
      * @inheritdoc
      */
-    public function course()
+    public function course() : \srag\Plugins\Hub2\Sync\Processor\Course\CourseSyncProcessor
     {
         return new CourseSyncProcessor(
             $this->origin,
@@ -97,7 +86,7 @@ class SyncProcessorFactory implements ISyncProcessorFactory
     /**
      * @inheritdoc
      */
-    public function category()
+    public function category() : \srag\Plugins\Hub2\Sync\Processor\Category\CategorySyncProcessor
     {
         return new CategorySyncProcessor(
             $this->origin,
@@ -109,7 +98,7 @@ class SyncProcessorFactory implements ISyncProcessorFactory
     /**
      * @inheritdoc
      */
-    public function session()
+    public function session() : \srag\Plugins\Hub2\Sync\Processor\Session\SessionSyncProcessor
     {
         return new SessionSyncProcessor(
             $this->origin,
@@ -121,7 +110,7 @@ class SyncProcessorFactory implements ISyncProcessorFactory
     /**
      * @inheritdoc
      */
-    public function courseMembership()
+    public function courseMembership() : \srag\Plugins\Hub2\Sync\Processor\CourseMembership\CourseMembershipSyncProcessor
     {
         return new CourseMembershipSyncProcessor(
             $this->origin,
@@ -133,7 +122,7 @@ class SyncProcessorFactory implements ISyncProcessorFactory
     /**
      * @inheritdoc
      */
-    public function group()
+    public function group() : \srag\Plugins\Hub2\Sync\Processor\Group\GroupSyncProcessor
     {
         return new GroupSyncProcessor(
             $this->origin,
@@ -146,7 +135,7 @@ class SyncProcessorFactory implements ISyncProcessorFactory
     /**
      * @inheritdoc
      */
-    public function groupMembership()
+    public function groupMembership() : \srag\Plugins\Hub2\Sync\Processor\GroupMembership\GroupMembershipSyncProcessor
     {
         return new GroupMembershipSyncProcessor(
             $this->origin,
@@ -158,8 +147,8 @@ class SyncProcessorFactory implements ISyncProcessorFactory
     /**
      * @inheritdoc
      */
-    public function sessionMembership()
-    {
+    public function sessionMembership(
+    ) : \srag\Plugins\Hub2\Sync\Processor\SessionMembership\SessionMembershipSyncProcessor {
         return new SessionMembershipSyncProcessor(
             $this->origin,
             $this->implementation,
@@ -198,7 +187,7 @@ class SyncProcessorFactory implements ISyncProcessorFactory
     {
         return new CompetenceManagementSyncProcessor(
             $this->origin,
-            $this->implementation, 
+            $this->implementation,
             $this->statusTransition
         );
     }

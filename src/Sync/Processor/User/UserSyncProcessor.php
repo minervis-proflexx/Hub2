@@ -25,7 +25,6 @@ use srag\Plugins\Hub2\Sync\Processor\ObjectSyncProcessor;
  */
 class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcessor
 {
-
     use MetadataSyncProcessor;
 
     /**
@@ -40,12 +39,13 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
      * @var array
      */
     protected static $properties
-        = array(
+        = [
             'authMode',
             'externalAccount',
             'firstname',
             'lastname',
             'email',
+            'secondEmail',
             'institution',
             'street',
             'city',
@@ -65,19 +65,25 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
             'gender',
             'birthday',
             'language',
-            'passwd',
-        );
-
+            'passwd'
+        ];
     /**
-     * @param IOrigin                 $origin
-     * @param IOriginImplementation   $implementation
-     * @param IObjectStatusTransition $transition
+     * @var \ilMailMimeSenderFactory
      */
+    private $sender_factory;
+    /**
+     * @var \ilRbacAdmin
+     */
+    private $rbacadmin;
+
     public function __construct(
         IOrigin $origin,
         IOriginImplementation $implementation,
         IObjectStatusTransition $transition
     ) {
+        global $DIC;
+        $this->sender_factory = $DIC['mail.mime.sender.factory'];
+        $this->rbacadmin = $DIC->rbac()->admin();
         parent::__construct($origin, $implementation, $transition);
         $this->props = $origin->properties();
         $this->config = $origin->config();
@@ -147,10 +153,10 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
     protected function handleUpdate(IDataTransferObject $dto, $ilias_id)/*: void*/
     {
         $this->current_ilias_object = $ilObjUser = $this->findILIASUser($ilias_id);
-        if ($ilObjUser === null) {
+        if (!$ilObjUser instanceof \ilObjUser) {
             // Recreate deleted users
             $mapped_id = $dto->getMappingStrategy()->map($dto);
-            if ($mapped_id === 0 || $this->findILIASUser($mapped_id) === null) {
+            if ($mapped_id === 0 || !$this->findILIASUser($mapped_id) instanceof \ilObjUser) {
                 $this->handleCreate($dto);
             } else {
                 $this->handleUpdate($dto, $mapped_id);
@@ -189,7 +195,8 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
         }
 
         // Update Password?
-        if ($this->props->get(UserProperties::UPDATE_PASSWORD) && $dto->getPasswd() !== null && $dto->getPasswd() !== '') {
+        if ($this->props->get(UserProperties::UPDATE_PASSWORD) && $dto->getPasswd() !== null && $dto->getPasswd(
+            ) !== '') {
             $ilObjUser->resetPassword($dto->getPasswd(), $dto->getPasswd());
         }
 
@@ -201,22 +208,20 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
         $ilObjUser->update();
     }
 
-    private function sendPasswordMail(IDataTransferObject $dto)
+    private function sendPasswordMail(IDataTransferObject $dto) : void
     {
         /** @var UserDTO $dto */
 
         $mail_field = $dto->getEmail();
-        if ($mail_field) {
+        if ($mail_field !== '' && $mail_field !== '0') {
             $mail = new ilMimeMail();
-            $mail->From(self::dic()->mailMimeSenderFactory()->system());
+            $mail->From($this->sender_factory->system());
             $mail->To($dto->getEmail());
             $body = $this->props->get(UserProperties::PASSWORD_MAIL_BODY);
 
             $body = strtr(
-                $body, array(
-                    '[PASSWORD]' => $dto->getPasswd(),
-                    '[LOGIN]' => $dto->getLogin(),
-                )
+                $body,
+                ['[PASSWORD]' => $dto->getPasswd(), '[LOGIN]' => $dto->getLogin()]
             );
             $mail->Subject($this->props->get(UserProperties::PASSWORD_MAIL_SUBJECT)); // TODO: Also replace placeholders
             $mail->Body($body);
@@ -231,7 +236,7 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
     protected function handleDelete(IDataTransferObject $dto, $ilias_id)/*: void*/
     {
         $this->current_ilias_object = $ilObjUser = $this->findILIASUser($ilias_id);
-        if ($ilObjUser === null) {
+        if (!$ilObjUser instanceof \ilObjUser) {
             return;
         }
         if ($this->props->get(UserProperties::DELETE) == UserProperties::DELETE_MODE_NONE) {
@@ -248,21 +253,15 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
         }
     }
 
-    /**
-     * @param UserDTO   $user
-     * @param ilObjUser $ilObjUser
-     */
     protected function assignILIASRoles(UserDTO $user, ilObjUser $ilObjUser)
     {
         foreach ($user->getIliasRoles() as $role_id) {
-            self::dic()->rbacadmin()->assignUser($role_id, $ilObjUser->getId());
+            $this->rbacadmin->assignUser($role_id, $ilObjUser->getId());
         }
     }
 
     /**
      * Build the login name depending on the origin properties
-     * @param UserDTO   $user
-     * @param ilObjUser $ilObjUser
      * @return string
      */
     protected function buildLogin(UserDTO $user, ilObjUser $ilObjUser)
@@ -284,12 +283,18 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
                 $login = $user->getLogin();
                 break;
             case IUserOriginConfig::LOGIN_FIELD_SHORTENED_FIRST_LASTNAME:
-                $login = substr($this->clearString($user->getFirstname()), 0,
-                        1) . '.' . $this->clearString($user->getLastname());
+                $login = substr(
+                    $this->clearString($user->getFirstname()),
+                    0,
+                    1
+                ) . '.' . $this->clearString($user->getLastname());
                 break;
             default:
-                $login = substr($this->clearString($user->getFirstname()), 0,
-                        1) . '.' . $this->clearString($user->getLastname());
+                $login = substr(
+                    $this->clearString($user->getFirstname()),
+                    0,
+                    1
+                ) . '.' . $this->clearString($user->getLastname());
         }
 
         if (!$this->config->isKeepCase()) {
@@ -327,6 +332,7 @@ class UserSyncProcessor extends ObjectSyncProcessor implements IUserSyncProcesso
      */
     protected function generatePassword()
     {
-        return array_pop(ilUtil::generatePasswords(1));
+        $generatePasswords = ilUtil::generatePasswords(1);
+        return array_pop($generatePasswords);
     }
 }

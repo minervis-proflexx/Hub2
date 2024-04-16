@@ -11,49 +11,48 @@ use DateTime;
  */
 interface IObject
 {
-
     /**
      * Initial status indicating that this object is new and an ILIAS object needs to be created by
      * the sync.
      */
-    const STATUS_NEW = 1;
+    public const STATUS_NEW = 1;
     /**
      * Intermediate status indicating that a corresponding ILIAS object must be created.
      */
-    const STATUS_TO_CREATE = 2;
+    public const STATUS_TO_CREATE = 2;
     /**
      * Final status indicating that the corresponding ILIAS object has been created.
      */
-    const STATUS_CREATED = 4;
+    public const STATUS_CREATED = 4;
     /**
      * Intermediate status indicating that the corresponding ILIAS object must be updated.
      */
-    const STATUS_TO_UPDATE = 8;
+    public const STATUS_TO_UPDATE = 8;
     /**
      * Final status indicating that the corresponding ILIAS object has been updated.
      */
-    const STATUS_UPDATED = 16;
+    public const STATUS_UPDATED = 16;
     /**
      * Intermediate status indicating that the corresponding ILIAS object must be deleted.
      */
-    const STATUS_TO_OUTDATED = 32;
+    public const STATUS_TO_OUTDATED = 32;
     /**
      * Final status indicating that the corresponding ILIAS object has been deleted.
      */
-    const STATUS_OUTDATED = 64;
+    public const STATUS_OUTDATED = 64;
     /**
      * Intermediate status indicating that the object was deleted an has now been delivered again.
      */
-    const STATUS_TO_RESTORE = 128;
+    public const STATUS_TO_RESTORE = 128;
     /**
      * Something on ILIAS side by processing the object goes wrong
      */
-    const STATUS_FAILED = 256;
+    public const STATUS_FAILED = 256;
     /**
      * Final status indicating that the object is ignored and not processed by the sync,
      * e.g. the period of the object does not match the actual period defined by the origin.
      */
-    const STATUS_IGNORED = 4096;
+    public const STATUS_IGNORED = 4096;
 
     /**
      * Get a unique ID of this object.
@@ -78,12 +77,10 @@ interface IObject
     /**
      * Get the date where the data of this object was delivered from the external system, e.g. via
      * CSV.
-     * @return DateTime
      */
     public function getDeliveryDate() : DateTime;
 
     /**
-     * @param int $unix_timestamp
      * @return $this
      */
     public function setDeliveryDate(int $unix_timestamp);
@@ -96,7 +93,6 @@ interface IObject
     public function getProcessedDate();
 
     /**
-     * @param int $unix_timestamp
      * @return $this
      */
     public function setProcessedDate(int $unix_timestamp);
@@ -116,12 +112,10 @@ interface IObject
 
     /**
      * Get the status of this object.
-     * @return int
      */
     public function getStatus() : int;
 
     /**
-     * @param int $status
      * @return $this
      */
     public function setStatus(int $status);
@@ -146,9 +140,8 @@ interface IObject
      * current hashcode is identical to the one in the database, no properties of the object were
      * changed. This means that the sync can skip processing the ILIAS object.
      * Note: Different objects MAY have identical hashcodes.
-     * @return string
      */
-    public function computeHashCode();
+    public function computeHashCode() : string;
 
     /**
      * Get the current hash code of this object, e.g. the hash stored in db. May not be up to date!
@@ -164,7 +157,6 @@ interface IObject
 
     /**
      * Set properties from an associative array.
-     * @param array $data
      * @return $this
      */
     public function setData(array $data);

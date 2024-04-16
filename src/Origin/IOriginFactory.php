@@ -9,7 +9,6 @@ namespace srag\Plugins\Hub2\Origin;
  */
 interface IOriginFactory
 {
-
     /**
      * Get the concrete origin by ID, e.g. returns a IUserOrigin if the given ID belongs
      * to a origin of object type 'user'.
@@ -18,10 +17,6 @@ interface IOriginFactory
      */
     public function getById($id); //Correct return type would by : ?IOrigin, but this is PHP7.1+
 
-    /**
-     * @param string $type
-     * @return IOrigin
-     */
     public function createByType(string $type) : IOrigin;
 
     /**
@@ -34,9 +29,6 @@ interface IOriginFactory
      */
     public function getAll() : array;
 
-    /**
-     * @param int $origin_id
-     */
     public function delete(int $origin_id)/*: void*/
     ;
 }

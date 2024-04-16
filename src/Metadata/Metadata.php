@@ -3,8 +3,6 @@
 namespace srag\Plugins\Hub2\Metadata;
 
 use ilHub2Plugin;
-use srag\DIC\Hub2\DICTrait;
-use srag\Plugins\Hub2\Utils\Hub2Trait;
 
 /**
  * Class Metadata
@@ -13,11 +11,7 @@ use srag\Plugins\Hub2\Utils\Hub2Trait;
  */
 class Metadata implements IMetadata
 {
-
-    use DICTrait;
-    use Hub2Trait;
-
-    const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
+    public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
     /**
      * @var int
      */
@@ -34,7 +28,7 @@ class Metadata implements IMetadata
      * @var string
      */
     protected $language_code = 'de';
-    
+
     /**
      * Metadata constructor
      * @param int $identifier
@@ -64,19 +58,19 @@ class Metadata implements IMetadata
 
         return $this;
     }
-    
+
     public function setLanguageCode(string $code) : IMetadata
     {
         $this->language_code = $code;
-    
+
         return $this;
     }
-    
+
     public function getLanguageCode() : string
     {
         return $this->language_code;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -106,8 +100,9 @@ class Metadata implements IMetadata
      */
     public function __toString() : string
     {
-        $json_encode = json_encode([$this->getRecordId() => [$this->getIdentifier() => $this->getValue()]]);
-
-        return $json_encode;
+        return json_encode(
+            [$this->getRecordId() => [$this->getIdentifier() => $this->getValue()]],
+            JSON_THROW_ON_ERROR
+        );
     }
 }

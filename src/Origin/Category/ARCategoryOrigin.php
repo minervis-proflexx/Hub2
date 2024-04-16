@@ -14,11 +14,10 @@ use srag\Plugins\Hub2\Origin\Properties\Category\CategoryProperties;
  */
 class ARCategoryOrigin extends AROrigin implements ICategoryOrigin
 {
-
     /**
      * @inheritdoc
      */
-    protected function getOriginConfig(array $data)
+    protected function getOriginConfig(array $data) : \srag\Plugins\Hub2\Origin\Config\Category\CategoryOriginConfig
     {
         return new CategoryOriginConfig($data);
     }
@@ -26,8 +25,9 @@ class ARCategoryOrigin extends AROrigin implements ICategoryOrigin
     /**
      * @inheritdoc
      */
-    protected function getOriginProperties(array $data)
-    {
+    protected function getOriginProperties(
+        array $data
+    ) : \srag\Plugins\Hub2\Origin\Properties\Category\CategoryProperties {
         return new CategoryProperties($data);
     }
 }

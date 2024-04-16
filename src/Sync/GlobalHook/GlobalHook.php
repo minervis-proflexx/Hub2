@@ -13,15 +13,11 @@ use srag\Plugins\Hub2\Log\ILog;
  */
 final class GlobalHook implements IGlobalHook
 {
-
     /**
      * @var self
      */
-    protected static $instance = null;
+    protected static $instance;
 
-    /**
-     * @return self
-     */
     public static function getInstance() : self
     {
         if (self::$instance === null) {
@@ -60,7 +56,9 @@ final class GlobalHook implements IGlobalHook
 
         $class_name = ArConfig::getField(ArConfig::KEY_GLOBAL_HOCK_CLASS);
         if (!class_exists($class_name)) {
-            throw new HubException("Class " . $class_name . " not found. Note that namespaces need to be entered completely");
+            throw new HubException(
+                "Class " . $class_name . " not found. Note that namespaces need to be entered completely"
+            );
         }
 
         $global_hook = new $class_name();
@@ -98,7 +96,7 @@ final class GlobalHook implements IGlobalHook
     /**
      * @inheritdoc
      */
-    public function handleLog(ILog $log)
+    public function handleLog(ILog $log) : void
     {
         if ($this->global_hook) {
             $this->global_hook->handleLog($log);

@@ -4,7 +4,6 @@ namespace srag\Plugins\Hub2\Object;
 
 use ilHub2Plugin;
 use LogicException;
-use srag\DIC\Hub2\DICTrait;
 use srag\Plugins\Hub2\Object\Category\ARCategory;
 use srag\Plugins\Hub2\Object\CompetenceManagement\ARCompetenceManagement;
 use srag\Plugins\Hub2\Object\CompetenceManagement\ICompetenceManagement;
@@ -20,7 +19,6 @@ use srag\Plugins\Hub2\Object\Session\ARSession;
 use srag\Plugins\Hub2\Object\SessionMembership\ARSessionMembership;
 use srag\Plugins\Hub2\Object\User\ARUser;
 use srag\Plugins\Hub2\Origin\IOrigin;
-use srag\Plugins\Hub2\Utils\Hub2Trait;
 
 /**
  * Class ObjectFactory
@@ -30,11 +28,7 @@ use srag\Plugins\Hub2\Utils\Hub2Trait;
  */
 class ObjectFactory implements IObjectFactory
 {
-
-    use DICTrait;
-    use Hub2Trait;
-
-    const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
+    public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
     /**
      * @var IOrigin
      */
@@ -43,10 +37,7 @@ class ObjectFactory implements IObjectFactory
      * @var \ilDBInterface
      */
     private $db;
-    
-    /**
-     * @param IOrigin $origin
-     */
+
     public function __construct(IOrigin $origin)
     {
         global $DIC;
@@ -76,17 +67,17 @@ class ObjectFactory implements IObjectFactory
                 return $this->session($ext_id);
             case IOrigin::OBJECT_TYPE_SESSION_MEMBERSHIP:
                 return $this->sessionMembership($ext_id);
-            case IOrigin::OBJECT_TYPE_ORGNUNIT;
+            case IOrigin::OBJECT_TYPE_ORGNUNIT:
                 return $this->orgUnit($ext_id);
-            case IOrigin::OBJECT_TYPE_ORGNUNIT_MEMBERSHIP;
+            case IOrigin::OBJECT_TYPE_ORGNUNIT_MEMBERSHIP:
                 return $this->orgUnitMembership($ext_id);
-            case IOrigin::OBJECT_TYPE_COMPETENCE_MANAGEMENT;
+            case IOrigin::OBJECT_TYPE_COMPETENCE_MANAGEMENT:
                 return $this->competenceManagement($ext_id);
             default:
                 throw new LogicException('no object-type for this origin found');
         }
     }
-    
+
     private function buildARfromDB($ext_id, \ActiveRecord $ar) : \ActiveRecord
     {
         $r = $this->db->queryF(
@@ -94,7 +85,7 @@ class ObjectFactory implements IObjectFactory
             ['text', 'integer'],
             [$ext_id, $this->origin->getId()]
         );
-        
+
         if ($r->numRows() === 0) {
             $ar->setOriginId($this->origin->getId());
             $ar->setExtId($ext_id);
@@ -102,14 +93,14 @@ class ObjectFactory implements IObjectFactory
             $data = $r->fetchAssoc();
             $ar = $ar->buildFromArray($data);
         }
-        
+
         return $ar;
     }
 
     /**
      * @inheritdoc
      */
-    public function user($ext_id)
+    public function user($ext_id) : \ActiveRecord
     {
         return $this->buildARfromDB($ext_id, new ARUser());
     }
@@ -177,17 +168,9 @@ class ObjectFactory implements IObjectFactory
     /**
      * @inheritdoc
      */
-    public function courseMembership($ext_id)
+    public function courseMembership($ext_id) : \ActiveRecord
     {
         return $this->buildARfromDB($ext_id, new ARCourseMembership());
-        $course_membership = ARCourseMembership::find($this->getId($ext_id));
-        if ($course_membership === null) {
-            $course_membership = new ARCourseMembership();
-            $course_membership->setOriginId($this->origin->getId());
-            $course_membership->setExtId($ext_id);
-        }
-
-        return $course_membership;
     }
 
     /**
@@ -269,9 +252,9 @@ class ObjectFactory implements IObjectFactory
     /**
      * @inheritdoc
      */
-    public function getId($ext_id)
+    public function getId($ext_id) : string
     {
-        return (string) $this->origin->getId() . $ext_id;
+        return $this->origin->getId() . $ext_id;
     }
 
     /**
@@ -369,8 +352,7 @@ class ObjectFactory implements IObjectFactory
     {
         return ARCompetenceManagement::get();
     }
-    
-    
+
     // ExtIds only
     private function fetchAllExtIds(\ActiveRecord $ar) : array
     {
@@ -383,69 +365,67 @@ class ObjectFactory implements IObjectFactory
         while ($d = $this->db->fetchObject($r)) {
             $ext_ids[] = $d->ext_id;
         }
-        
+
         return $ext_ids;
     }
-    
-    
+
     public function usersExtIds() : array
     {
         return $this->fetchAllExtIds(new ARUser());
     }
-    
+
     public function coursesExtIds() : array
     {
         return $this->fetchAllExtIds(new ARCourse());
     }
-    
+
     public function categoriesExtIds() : array
     {
         return $this->fetchAllExtIds(new ARCategory());
     }
-    
+
     public function categorysExtIds() : array
     {
         return $this->categoriesExtIds();
     }
-    
+
     public function groupsExtIds() : array
     {
         return $this->fetchAllExtIds(new ARGroup());
     }
-    
+
     public function sessionsExtIds() : array
     {
         return $this->fetchAllExtIds(new ARSession());
     }
-    
+
     public function courseMembershipsExtIds() : array
     {
         return $this->fetchAllExtIds(new ARCourseMembership());
     }
-    
+
     public function groupMembershipsExtIds() : array
     {
         return $this->fetchAllExtIds(new ARGroupMembership());
     }
-    
+
     public function sessionMembershipsExtIds() : array
     {
         return $this->fetchAllExtIds(new ARSessionMembership());
     }
-    
+
     public function orgUnitsExtIds() : array
     {
         return $this->fetchAllExtIds(new AROrgUnit());
     }
-    
+
     public function orgUnitMembershipsExtIds() : array
     {
         return $this->fetchAllExtIds(new AROrgUnitMembership());
     }
-    
+
     public function competenceManagementsExtIds() : array
     {
         return $this->fetchAllExtIds(new ARCompetenceManagement());
     }
-    
 }

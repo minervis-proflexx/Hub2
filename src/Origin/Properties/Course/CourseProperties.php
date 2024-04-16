@@ -12,18 +12,11 @@ use srag\Plugins\Hub2\Origin\Properties\OriginProperties;
  */
 class CourseProperties extends OriginProperties implements ICourseProperties
 {
-
     /**
      * @var array
      */
     public static $mail_notification_placeholder
-        = array(
-            'title',
-            'description',
-            'responsible',
-            'notification_email',
-            'shortlink',
-        );
+        = ['title', 'description', 'responsible', 'notification_email', 'shortlink'];
 
     /**
      * @inheritdoc
@@ -44,7 +37,6 @@ class CourseProperties extends OriginProperties implements ICourseProperties
         = [
             self::SET_ONLINE => false,
             self::SET_ONLINE_AGAIN => false,
-            self::CREATE_ICON => false,
             self::SEND_CREATE_NOTIFICATION => false,
             self::CREATE_NOTIFICATION_SUBJECT => '',
             self::CREATE_NOTIFICATION_BODY => '',

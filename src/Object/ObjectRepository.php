@@ -4,11 +4,9 @@ namespace srag\Plugins\Hub2\Object;
 
 use ActiveRecord;
 use ilHub2Plugin;
-use srag\DIC\Hub2\DICTrait;
 use srag\Plugins\Hub2\Object\Group\GroupRepository;
 use srag\Plugins\Hub2\Object\Session\SessionRepository;
 use srag\Plugins\Hub2\Origin\IOrigin;
-use srag\Plugins\Hub2\Utils\Hub2Trait;
 
 /**
  * Class ObjectRepository
@@ -18,11 +16,7 @@ use srag\Plugins\Hub2\Utils\Hub2Trait;
  */
 abstract class ObjectRepository implements IObjectRepository
 {
-
-    use DICTrait;
-    use Hub2Trait;
-
-    const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
+    public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
     /**
      * @var IOrigin
      */
@@ -34,7 +28,6 @@ abstract class ObjectRepository implements IObjectRepository
 
     /**
      * ObjectRepository constructor
-     * @param IOrigin $origin
      */
     public function __construct(IOrigin $origin)
     {
@@ -63,7 +56,7 @@ abstract class ObjectRepository implements IObjectRepository
         return $class::where(
             [
                 'origin_id' => $this->origin->getId(),
-                'status' => (int) $status,
+                'status' => $status,
             ]
         )->get();
     }
@@ -73,11 +66,12 @@ abstract class ObjectRepository implements IObjectRepository
      */
     public function getToDeleteByParentScope(array $ext_ids, array $parent_ext_ids) : array
     {
+        $existing_ext_id_query = null;
         $glue = self::GLUE;
         $class = $this->getClass();
 
-        if (count($parent_ext_ids) > 0) {
-            if (count($ext_ids) > 0) {
+        if ($parent_ext_ids !== []) {
+            if ($ext_ids !== []) {
                 $existing_ext_id_query = " AND ext_id NOT IN ('" . implode("','", $ext_ids) . "') ";
             }
             if ($this instanceof GroupRepository || $this instanceof SessionRepository) {
@@ -88,19 +82,21 @@ abstract class ObjectRepository implements IObjectRepository
                 $parent_scope_query = rtrim($parent_scope_query, "OR");
                 $parent_scope_query .= ")";
             } else {
-                $parent_scope_query = " AND SUBSTRING_INDEX(ext_id,'" . $glue . "',1) IN ('" . implode("','",
-                        $parent_ext_ids) . "') ";
+                $parent_scope_query = " AND SUBSTRING_INDEX(ext_id,'" . $glue . "',1) IN ('" . implode(
+                    "','",
+                    $parent_ext_ids
+                ) . "') ";
             }
 
             return $class::where(
                 "origin_id = " . $this->origin->getId() . " AND status IN ('" . implode(
-                    "','", [
+                    "','",
+                    [
                         IObject::STATUS_CREATED,
                         IObject::STATUS_UPDATED,
                         IObject::STATUS_IGNORED,
                     ]
                 ) . "') " . $existing_ext_id_query . $parent_scope_query
-
             )->get();
         }
 
@@ -114,7 +110,7 @@ abstract class ObjectRepository implements IObjectRepository
     {
         $class = $this->getClass();
 
-        if (count($ext_ids) > 0) {
+        if ($ext_ids !== []) {
             /** @var ActiveRecord $class */
             return $class::where(
                 [
@@ -123,7 +119,8 @@ abstract class ObjectRepository implements IObjectRepository
                     // E.g. not from OUTDATED or IGNORED
                     'status' => [IObject::STATUS_CREATED, IObject::STATUS_UPDATED, IObject::STATUS_IGNORED],
                     'ext_id' => $ext_ids,
-                ], ['origin_id' => '=', 'status' => 'IN', 'ext_id' => 'NOT IN']
+                ],
+                ['origin_id' => '=', 'status' => 'IN', 'ext_id' => 'NOT IN']
             )->get();
         } else {
             /** @var ActiveRecord $class */
@@ -133,7 +130,8 @@ abstract class ObjectRepository implements IObjectRepository
                     // We only can transmit from final states CREATED and UPDATED to TO_DELETE
                     // E.g. not from OUTDATED or IGNORED
                     'status' => [IObject::STATUS_CREATED, IObject::STATUS_UPDATED, IObject::STATUS_IGNORED],
-                ], ['origin_id' => '=', 'status' => 'IN']
+                ],
+                ['origin_id' => '=', 'status' => 'IN']
             )->get();
         }
     }

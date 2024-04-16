@@ -4,8 +4,6 @@ namespace srag\Plugins\Hub2\Config;
 
 use ActiveRecord;
 use ilHub2Plugin;
-use srag\DIC\Hub2\DICTrait;
-use srag\Plugins\Hub2\Utils\Hub2Trait;
 
 /**
  * Class ArConfigOld
@@ -15,35 +13,29 @@ use srag\Plugins\Hub2\Utils\Hub2Trait;
  */
 class ArConfigOld extends ActiveRecord
 {
-
-    use DICTrait;
-    use Hub2Trait;
-
     /**
      * @var string
      * @deprecated
      */
-    const TABLE_NAME = 'sr_hub2_config';
+    public const TABLE_NAME = 'sr_hub2_config';
     /**
      * @var string
      * @deprecated
      */
-    const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
+    public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
 
     /**
-     * @return string
      * @deprecated
      */
-    public function getConnectorContainerName()
+    public function getConnectorContainerName(): string
     {
         return self::TABLE_NAME;
     }
 
     /**
-     * @return string
      * @deprecated
      */
-    public static function returnDbTableName()
+    public static function returnDbTableName(): string
     {
         return self::TABLE_NAME;
     }
@@ -103,9 +95,8 @@ class ArConfigOld extends ActiveRecord
      */
     public function sleep($field_name)
     {
-        switch ($field_name) {
-            case 'value':
-                return (is_array($this->value)) ? json_encode($this->value) : $this->value;
+        if ($field_name === 'value') {
+            return (is_array($this->value)) ? json_encode($this->value, JSON_THROW_ON_ERROR) : $this->value;
         }
 
         return parent::sleep($field_name);
@@ -124,7 +115,7 @@ class ArConfigOld extends ActiveRecord
      * @param string $key
      * @deprecated
      */
-    public function setKey($key)
+    public function setKey($key): void
     {
         $this->identifier = $key;
     }
@@ -142,7 +133,7 @@ class ArConfigOld extends ActiveRecord
      * @param string $value
      * @deprecated
      */
-    public function setValue($value)
+    public function setValue($value): void
     {
         $this->value = $value;
     }

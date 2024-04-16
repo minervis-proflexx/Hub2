@@ -2,14 +2,8 @@
 
 namespace srag\Plugins\Hub2\Origin;
 
-use InvalidArgumentException;
 use srag\Plugins\Hub2\Exception\BuildObjectsFailedException;
-use srag\Plugins\Hub2\Exception\ConnectionFailedException;
-use srag\Plugins\Hub2\Exception\HubException;
-use srag\Plugins\Hub2\Exception\ParseDataFailedException;
-use srag\Plugins\Hub2\Log\ILog;
 use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
-use srag\Plugins\Hub2\Object\HookObject;
 
 /**
  * Interface IOriginGeneratorImplementation
@@ -18,7 +12,6 @@ use srag\Plugins\Hub2\Object\HookObject;
  */
 interface IOriginGeneratorImplementation extends IOriginImplementation
 {
-    
     /**
      * Build the hub DTO objects from the parsed data.
      * An instance of such objects MUST be obtained over the DTOObjectFactory. The factory
@@ -32,5 +25,5 @@ interface IOriginGeneratorImplementation extends IOriginImplementation
      * @return IDataTransferObject[]|\Generator
      * @throws BuildObjectsFailedException
      */
-    public function buildObjects() :\Generator;
+    public function buildObjects(): \Generator;
 }

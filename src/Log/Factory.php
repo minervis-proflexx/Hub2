@@ -4,14 +4,13 @@ namespace srag\Plugins\Hub2\Log;
 
 use ilDateTime;
 use ilHub2Plugin;
-use srag\DIC\Hub2\DICTrait;
 use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
 use srag\Plugins\Hub2\Object\IObject;
 use srag\Plugins\Hub2\Object\User\IUserDTO;
 use srag\Plugins\Hub2\Origin\IOrigin;
-use srag\Plugins\Hub2\Utils\Hub2Trait;
 use stdClass;
 use Throwable;
+use srag\Plugins\Hub2\Log\Repository as LogRepository;
 
 /**
  * Class Factory
@@ -20,19 +19,16 @@ use Throwable;
  */
 final class Factory implements IFactory
 {
-
-    use DICTrait;
-    use Hub2Trait;
-
-    const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
+    public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
     /**
      * @var IFactory
      */
-    protected static $instance = null;
-
+    protected static $instance;
     /**
-     * @return IFactory
+     * @var IRepository
      */
+    protected $log_repo;
+
     public static function getInstance() : IFactory
     {
         if (self::$instance === null) {
@@ -42,10 +38,7 @@ final class Factory implements IFactory
         return self::$instance;
     }
 
-    /**
-     * @param IFactory $instance
-     */
-    public static function setInstance(IFactory $instance)/*: void*/
+    public static function setInstance(IFactory $instance) : void/*: void*/
     {
         self::$instance = $instance;
     }
@@ -55,7 +48,7 @@ final class Factory implements IFactory
      */
     private function __construct()
     {
-
+        $this->log_repo = LogRepository::getInstance();
     }
 
     /**
@@ -63,9 +56,7 @@ final class Factory implements IFactory
      */
     public function log() : ILog
     {
-        $log = (new Log())->withAdditionalData(clone self::logs()->getGlobalAdditionalData());
-
-        return $log;
+        return (new Log())->withAdditionalData(clone $this->log_repo->getGlobalAdditionalData());
     }
 
     /**
@@ -75,35 +66,27 @@ final class Factory implements IFactory
     {
         $log = $this->log()->withOriginId($origin->getId())->withOriginObjectType($origin->getObjectType());
 
-        if ($object !== null) {
+        if ($object instanceof \srag\Plugins\Hub2\Object\IObject) {
             $log->withObjectExtId($object->getExtId())
                 ->withObjectIliasId($object->getILIASId())
-                ->withStatus(intval($object->getStatus()))
+                ->withStatus($object->getStatus())
                 ->withAdditionalData((object) $object->getData()['additionalData']);
         }
 
-        if ($dto !== null) {
+        if ($dto instanceof \srag\Plugins\Hub2\Object\DTO\IDataTransferObject) {
             if (empty($log->getObjectExtId())) {
                 $log->withObjectExtId($dto->getExtId());
             }
 
-            if (method_exists($dto, "getTitle")) {
-                if (!empty($dto->getTitle())) {
-                    $log = $log->withTitle($dto->getTitle());
-
-                    return $log;
-                }
+            if (method_exists($dto, "getTitle") && !empty($dto->getTitle())) {
+                return $log->withTitle($dto->getTitle());
             }
             if ($dto instanceof IUserDTO) {
                 if (!empty($dto->getLogin())) {
-                    $log = $log->withTitle($dto->getLogin());
-
-                    return $log;
+                    return $log->withTitle($dto->getLogin());
                 }
                 if (!empty($dto->getEmail())) {
-                    $log = $log->withTitle($dto->getEmail());
-
-                    return $log;
+                    return $log->withTitle($dto->getEmail());
                 }
             }
         }
@@ -125,7 +108,7 @@ final class Factory implements IFactory
         $log->withLevel(ILog::LEVEL_EXCEPTION);
         $log->withMessage($ex->getMessage());
         $relevant = true;
-        $filter = static function (array $stack) use (&$relevant) {
+        $filter = static function (array $stack) use (&$relevant) : bool {
             $relevant = strpos($stack["file"], 'OriginSync.php') === false && $relevant;
             return $relevant;
         };
@@ -148,14 +131,24 @@ final class Factory implements IFactory
      */
     public function fromDB(stdClass $data) : ILog
     {
-        $log = $this->log()->withLogId($data->log_id)->withTitle($data->title)->withMessage($data->message)
-                    ->withDate(new ilDateTime($data->date,
-                        IL_CAL_DATETIME))->withLevel($data->level)->withAdditionalData(json_decode($data->additional_data,
-                    false) ?? new stdClass())
-                    ->withOriginId($data->origin_id)->withOriginObjectType($data->origin_object_type)->withObjectExtId($data->object_ext_id)
+        return $this->log()->withLogId($data->log_id)->withTitle($data->title)->withMessage($data->message)
+                    ->withDate(
+                        new ilDateTime(
+                            $data->date,
+                            IL_CAL_DATETIME
+                        )
+                    )->withLevel($data->level)->withAdditionalData(
+                        json_decode(
+                            $data->additional_data,
+                            false,
+                            512,
+                            JSON_THROW_ON_ERROR
+                        ) ?? new stdClass()
+                    )
+                    ->withOriginId($data->origin_id)->withOriginObjectType($data->origin_object_type)->withObjectExtId(
+                        $data->object_ext_id
+                    )
                     ->withObjectIliasId($data->object_ilias_id)
-                    ->withStatus(intval($data->status));
-
-        return $log;
+                    ->withStatus((int) $data->status);
     }
 }

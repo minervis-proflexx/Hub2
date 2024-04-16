@@ -11,26 +11,22 @@ use srag\Plugins\Hub2\Metadata\IMetadata;
  */
 trait ARMetadataAwareObject
 {
-
     /**
      * @var array
      * @db_has_field    true
      * @db_fieldtype    clob
      */
-    protected $meta_data = array();
+    protected $meta_data = [];
 
     /**
      * @return IMetadata[]
      */
     public function getMetaData() : array
     {
-        return is_array($this->meta_data) ? $this->meta_data : array();
+        return is_array($this->meta_data) ? $this->meta_data : [];
     }
 
-    /**
-     * @param array $meta_data
-     */
-    public function setMetaData(array $meta_data)
+    public function setMetaData(array $meta_data) : void
     {
         $this->meta_data = $meta_data;
     }

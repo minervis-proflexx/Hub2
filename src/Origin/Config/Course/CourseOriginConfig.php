@@ -12,7 +12,6 @@ use srag\Plugins\Hub2\Origin\Config\OriginConfig;
  */
 class CourseOriginConfig extends OriginConfig implements ICourseOriginConfig
 {
-
     /**
      * @var array
      */
@@ -31,6 +30,6 @@ class CourseOriginConfig extends OriginConfig implements ICourseOriginConfig
      */
     public function getParentRefIdIfNoParentIdFound() : int
     {
-        return intval($this->get(self::REF_ID_NO_PARENT_ID_FOUND));
+        return (int) $this->get(self::REF_ID_NO_PARENT_ID_FOUND);
     }
 }

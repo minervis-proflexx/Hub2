@@ -11,13 +11,9 @@ use srag\Plugins\Hub2\Taxonomy\Node\INode;
  */
 interface ITaxonomy
 {
+    public const MODE_SELECT = 1;
+    public const MODE_CREATE = 2;
 
-    const MODE_SELECT = 1;
-    const MODE_CREATE = 2;
-
-    /**
-     * @return string
-     */
     public function getTitle() : string;
 
     /**
@@ -46,14 +42,7 @@ interface ITaxonomy
      */
     public function getNodeTitlesAsArray() : array;
 
-    /**
-     * @param INode $node
-     * @return ITaxonomy
-     */
     public function attach(INode $node) : ITaxonomy;
 
-    /**
-     * @return string
-     */
     public function __toString() : string;
 }

@@ -13,14 +13,13 @@ use srag\Plugins\Hub2\Origin\Properties\CompetenceManagement\ICompetenceManageme
  */
 interface ICompetenceManagementOrigin extends IOrigin
 {
-
     /**
      * @return ICompetenceManagementOriginConfig
      */
-    public function config() : ICompetenceManagementOriginConfig;
+    public function config(): \srag\Plugins\Hub2\Origin\Config\IOriginConfig;
 
     /**
      * @return ICompetenceManagementProperties
      */
-    public function properties() : ICompetenceManagementProperties;
+    public function properties(): \srag\Plugins\Hub2\Origin\Properties\IOriginProperties;
 }

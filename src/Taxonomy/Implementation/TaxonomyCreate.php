@@ -14,11 +14,22 @@ use srag\Plugins\Hub2\Taxonomy\Node\INode;
  */
 class TaxonomyCreate extends AbstractTaxonomy implements ITaxonomyImplementation
 {
+    /**
+     * @var \ilRbacReview
+     */
+    private $rbacreview;
+
+    public function __construct()
+    {
+        global $DIC;
+        $this->rbacreview = $DIC['rbacreview'];
+        parent::__construct();
+    }
 
     /**
      * @inheritdoc
      */
-    public function write()
+    public function write() : void
     {
         if (!$this->taxonomyExists()) {
             $this->createTaxonomy();
@@ -31,7 +42,7 @@ class TaxonomyCreate extends AbstractTaxonomy implements ITaxonomyImplementation
     /**
      *
      */
-    private function createTaxonomy()
+    private function createTaxonomy() : void
     {
         $tax = new ilObjTaxonomy();
         $tax->setTitle($this->getTaxonomy()->getTitle());
@@ -42,7 +53,7 @@ class TaxonomyCreate extends AbstractTaxonomy implements ITaxonomyImplementation
         $tax->setPermissions($this->getILIASParentId());
 
         // rbac log
-        $rbac_log_roles = self::dic()->rbacreview()->getParentRoleIds($tax->getRefId(), false);
+        $rbac_log_roles = $this->rbacreview->getParentRoleIds($tax->getRefId(), false);
         $rbac_log = ilRbacLog::gatherFaPa($tax->getRefId(), array_keys($rbac_log_roles), true);
         ilRbacLog::add(ilRbacLog::CREATE_OBJECT, $tax->getRefId(), $rbac_log);
 
@@ -59,10 +70,7 @@ class TaxonomyCreate extends AbstractTaxonomy implements ITaxonomyImplementation
         }
     }
 
-    /**
-     * @param INode $nodeDTO
-     */
-    private function createNode(INode $nodeDTO, $parent_id = 0)
+    private function createNode(INode $nodeDTO, $parent_id = 0) : void
     {
         $node = new ilTaxonomyNode();
         $node->setTitle($nodeDTO->getTitle());

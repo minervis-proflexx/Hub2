@@ -3,9 +3,7 @@
 namespace srag\Plugins\Hub2\UI;
 
 use ilHub2Plugin;
-use srag\DIC\Hub2\DICTrait;
 use srag\Plugins\Hub2\Origin\AROrigin;
-use srag\Plugins\Hub2\Utils\Hub2Trait;
 
 /**
  * Class OriginFormFactory
@@ -14,17 +12,9 @@ use srag\Plugins\Hub2\Utils\Hub2Trait;
  */
 class OriginFormFactory
 {
+    public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
 
-    use DICTrait;
-    use Hub2Trait;
-
-    const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
-
-    /**
-     * @param AROrigin $origin
-     * @return string
-     */
-    public function getFormClassNameByOrigin(AROrigin $origin)
+    public function getFormClassNameByOrigin(AROrigin $origin) : string
     {
         $type = $origin->getObjectType();
 

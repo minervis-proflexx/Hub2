@@ -20,15 +20,14 @@ use ilDateTime;
  */
 class CustomMetadata extends AbstractImplementation implements IMetadataImplementation
 {
-
     /**
      * @inheritdoc
      */
-    public function write()
+    public function write() : void
     {
         $field_id = $this->getMetadata()->getIdentifier();
         $object_id = $this->getIliasId();
-        
+
         $md_values = new ilAdvancedMDValues(
             $this->getMetadata()->getRecordId(),
             $object_id,
@@ -37,15 +36,16 @@ class CustomMetadata extends AbstractImplementation implements IMetadataImplemen
         );
 
         $md_values->read();
-        
+
         $adt_group = $md_values->getADTGroup();
-        
+
         $value = $this->getMetadata()->getValue();
         $adt = $adt_group->getElement($field_id);
 
         switch (true) {
             case ($adt instanceof ilADTLocalizedText):
                 $adt->setTranslation($this->getMetadata()->getLanguageCode(), $value);
+                $adt->setText($value);
                 break;
             case ($adt instanceof ilADTText):
                 $adt->setText($value);

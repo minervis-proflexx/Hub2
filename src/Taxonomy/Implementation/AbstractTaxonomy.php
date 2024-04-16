@@ -5,10 +5,8 @@ namespace srag\Plugins\Hub2\Taxonomy\Implementation;
 use ilHub2Plugin;
 use ilObjTaxonomy;
 use ilTaxonomyTree;
-use srag\DIC\Hub2\DICTrait;
 use srag\Plugins\Hub2\Taxonomy\ITaxonomy;
 use srag\Plugins\Hub2\Taxonomy\Node\INode;
-use srag\Plugins\Hub2\Utils\Hub2Trait;
 
 /**
  * Class AbstractTaxonomy
@@ -17,11 +15,7 @@ use srag\Plugins\Hub2\Utils\Hub2Trait;
  */
 abstract class AbstractTaxonomy implements ITaxonomyImplementation
 {
-
-    use DICTrait;
-    use Hub2Trait;
-
-    const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
+    public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
     /**
      * @var int
      */
@@ -49,21 +43,19 @@ abstract class AbstractTaxonomy implements ITaxonomyImplementation
 
     /**
      * Taxonomy constructor
-     * @param ITaxonomy $taxonomy
      */
     public function __construct(ITaxonomy $taxonomy, int $ilias_parent_id)
     {
+        global $DIC;
+        $this->tree = $DIC['tree'];
         $this->taxonomy = $taxonomy;
         $this->ilias_parent_id = $ilias_parent_id;
     }
 
-    /**
-     * @return bool
-     */
     protected function taxonomyExists() : bool
     {
-        $childsByType = self::dic()->tree()->getChildsByType($this->getILIASParentId(), 'tax');
-        if (!count($childsByType)) {
+        $childsByType = $this->tree->getChildsByType($this->getILIASParentId(), 'tax');
+        if ($childsByType === []) {
             return false;
         }
         foreach ($childsByType as $value) {
@@ -92,16 +84,12 @@ abstract class AbstractTaxonomy implements ITaxonomyImplementation
      */
     protected function setChildrenByParentId($parent_id)
     {
-        foreach ($this->tree->getChildsByTypeFilter($parent_id, array("taxn")) as $item) {
+        foreach ($this->tree->getChildsByTypeFilter($parent_id, ["taxn"]) as $item) {
             $this->childs[$item['obj_id']] = $item['title'];
             $this->setChildrenByParentId($item['obj_id']);
         }
     }
 
-    /**
-     * @param INode $node
-     * @return bool
-     */
     protected function nodeExists(INode $node) : bool
     {
         return in_array($node->getTitle(), $this->childs);

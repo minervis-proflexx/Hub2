@@ -9,8 +9,7 @@ namespace srag\Plugins\Hub2\Origin\Properties;
  */
 interface IOriginProperties
 {
-
-    const PREFIX_UPDATE_DTO = 'update_dto_';
+    public const PREFIX_UPDATE_DTO = 'update_dto_';
 
     /**
      * Get a property value by key, returns NULL if no property is found.
@@ -35,8 +34,7 @@ interface IOriginProperties
 
     /**
      * Set all properties as associative array
-     * @param array $data
      * @return $this
      */
-    public function setData(array $data);
+    public function setData(array $data): self;
 }

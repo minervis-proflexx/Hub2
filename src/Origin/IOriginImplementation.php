@@ -3,12 +3,10 @@
 namespace srag\Plugins\Hub2\Origin;
 
 use InvalidArgumentException;
-use srag\Plugins\Hub2\Exception\BuildObjectsFailedException;
 use srag\Plugins\Hub2\Exception\ConnectionFailedException;
 use srag\Plugins\Hub2\Exception\HubException;
 use srag\Plugins\Hub2\Exception\ParseDataFailedException;
 use srag\Plugins\Hub2\Log\ILog;
-use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
 use srag\Plugins\Hub2\Object\HookObject;
 use srag\Plugins\Hub2\Origin\Hook\Config;
 
@@ -19,7 +17,6 @@ use srag\Plugins\Hub2\Origin\Hook\Config;
  */
 interface IOriginImplementation
 {
-
     /**
      * Connect to the service providing the sync data.
      * Throw a ConnectionFailedException to abort the sync if a connection is not possible.
@@ -38,11 +35,14 @@ interface IOriginImplementation
      */
     public function parseData();
 
+    public function canDroppedFileContentBestored(string $content) : bool;
+
 
     // HOOKS
     // ------------------------------------------------------------------------------------------------------------
-    
+
     public function hookConfig() : Config;
+
     /**
      * Called if any exception occurs during processing the ILIAS objects. This hook can be used to
      * influence the further processing of the current origin sync or the global sync:
@@ -53,38 +53,19 @@ interface IOriginImplementation
      * - Throw an AbortSyncException to stop the global sync. The sync of any other following
      * origins in the processing chain is NOT getting executed.
      * Note that if you do not throw any of the exceptions above, the sync will continue.
-     * @param ILog $log
      */
     public function handleLog(ILog $log);
 
-    /**
-     * @param HookObject $hook
-     */
     public function beforeCreateILIASObject(HookObject $hook);
 
-    /**
-     * @param HookObject $hook
-     */
     public function afterCreateILIASObject(HookObject $hook);
 
-    /**
-     * @param HookObject $hook
-     */
     public function beforeUpdateILIASObject(HookObject $hook);
 
-    /**
-     * @param HookObject $hook
-     */
     public function afterUpdateILIASObject(HookObject $hook);
 
-    /**
-     * @param HookObject $hook
-     */
     public function beforeDeleteILIASObject(HookObject $hook);
 
-    /**
-     * @param HookObject $hook
-     */
     public function afterDeleteILIASObject(HookObject $hook);
 
     /**
@@ -106,7 +87,6 @@ interface IOriginImplementation
      * - IObject::STATUS_TO_RESTORE
      * - IObject::STATUS_IGNORED
      * E.G. $object->overrideStatus(IObject::STATUS_TO_UPDATE);
-     * @param HookObject $hook
      * @return void
      * @throws HubException if overriding Status for NullDTOs (deleted objects)
      * @throws InvalidArgumentException if passing not supported Status
@@ -128,7 +108,6 @@ interface IOriginImplementation
     public function getAdHocParentScopesAsExtIds() : array;
 
     /**
-     * @param HookObject $hook
      * @return mixed
      */
     public function handleNoLongerDeliveredObject(HookObject $hook);

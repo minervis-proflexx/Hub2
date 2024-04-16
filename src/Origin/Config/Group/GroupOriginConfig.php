@@ -11,7 +11,6 @@ use srag\Plugins\Hub2\Origin\Config\OriginConfig;
  */
 class GroupOriginConfig extends OriginConfig implements IGroupOriginConfig
 {
-
     /**
      * @var array
      */
@@ -30,6 +29,6 @@ class GroupOriginConfig extends OriginConfig implements IGroupOriginConfig
      */
     public function getParentRefIdIfNoParentIdFound() : int
     {
-        return intval($this->get(self::REF_ID_NO_PARENT_ID_FOUND));
+        return (int) $this->get(self::REF_ID_NO_PARENT_ID_FOUND);
     }
 }

@@ -36,7 +36,6 @@ use srag\Plugins\Hub2\Shortlink\User\UserLink;
  */
 class ObjectLinkFactory
 {
-
     /**
      * @var OriginFactory
      */
@@ -50,10 +49,6 @@ class ObjectLinkFactory
         $this->origin_factory = new OriginFactory();
     }
 
-    /**
-     * @param string $ext_id
-     * @return IObjectLink
-     */
     public function findByExtId(string $ext_id) : IObjectLink
     {
         foreach ($this->origin_factory->getAllActive() as $origin) {
@@ -67,11 +62,6 @@ class ObjectLinkFactory
         return new NullLink();
     }
 
-    /**
-     * @param string  $ext_id
-     * @param IOrigin $origin
-     * @return IObjectLink
-     */
     public function findByExtIdAndOrigin(string $ext_id, IOrigin $origin) : IObjectLink
     {
         $f = new ObjectFactory($origin);
@@ -81,13 +71,11 @@ class ObjectLinkFactory
         return $this->findByObject($object);
     }
 
-    /**
-     * @param ARObject $object
-     * @return IObjectLink
-     */
     public function findByObject(ARObject $object) : IObjectLink
     {
-        if ($object->getILIASId()) {
+        $ilias_id = $object->getILIASId();
+
+        if ($ilias_id) {
             switch (true) {
                 case ($object instanceof ARCourseMembership):
                     return new CourseMembershipLink($object);

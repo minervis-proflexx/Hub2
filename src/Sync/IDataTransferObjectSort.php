@@ -11,24 +11,14 @@ use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
  */
 interface IDataTransferObjectSort
 {
-
     /**
      * @var int
      */
-    const MAX_LEVEL = 100;
+    public const MAX_LEVEL = 100;
 
-    /**
-     * @return IDataTransferObject
-     */
     public function getDtoObject() : IDataTransferObject;
 
-    /**
-     * @return int
-     */
     public function getLevel() : int;
 
-    /**
-     * @param int $level
-     */
     public function setLevel(int $level);
 }

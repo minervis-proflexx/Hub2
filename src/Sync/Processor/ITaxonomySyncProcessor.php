@@ -13,11 +13,7 @@ use srag\Plugins\Hub2\Object\ITaxonomyAwareObject;
  */
 interface ITaxonomySyncProcessor
 {
-
     /**
-     * @param ITaxonomyAwareDataTransferObject $dto
-     * @param ITaxonomyAwareObject             $iobject
-     * @param ilObject                         $ilias_object
      * @return void
      */
     public function handleTaxonomies(

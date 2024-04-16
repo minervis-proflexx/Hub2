@@ -12,10 +12,8 @@ require_once __DIR__ . "/../AbstractHub2Tests.php";
  */
 class MetadataTest extends AbstractHub2Tests
 {
-
     protected function setUp()
     {
-
     }
 
     public function tearDown()
@@ -25,6 +23,5 @@ class MetadataTest extends AbstractHub2Tests
 
     public function test_one_metadata_dto()
     {
-
     }
 }

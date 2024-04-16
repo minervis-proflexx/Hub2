@@ -4,11 +4,9 @@ namespace srag\Plugins\Hub2\Object;
 
 use ilHub2Plugin;
 use ilObject;
-use srag\DIC\Hub2\DICTrait;
 use srag\Plugins\Hub2\Exception\HubException;
 use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
 use srag\Plugins\Hub2\Sync\Processor\FakeIliasObject;
-use srag\Plugins\Hub2\Utils\Hub2Trait;
 
 /**
  * Class HookObject
@@ -18,11 +16,7 @@ use srag\Plugins\Hub2\Utils\Hub2Trait;
  */
 class HookObject
 {
-
-    use DICTrait;
-    use Hub2Trait;
-
-    const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
+    public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
     /**
      * @var IDataTransferObject
      */
@@ -36,9 +30,6 @@ class HookObject
      */
     private $ilias_object;
 
-    /**
-     * @param IObject $object
-     */
     public function __construct(IObject $object, IDataTransferObject $dto)
     {
         $this->object = $object;
@@ -56,18 +47,16 @@ class HookObject
 
     /**
      * Get the current status, see constants in IObject
-     * @return int
      */
-    public function getStatus()
+    public function getStatus() : int
     {
         return $this->object->getStatus();
     }
 
     /**
-     * @param int $status
      * @throws HubException
      */
-    public function overrideStatus(int $status)
+    public function overrideStatus(int $status) : void
     {
         $this->object->setStatus($status);
     }
@@ -108,9 +97,6 @@ class HookObject
         return $this->object->getILIASId();
     }
 
-    /**
-     * @return IDataTransferObject
-     */
     public function getDTO() : IDataTransferObject
     {
         return $this->dto;

@@ -21,7 +21,7 @@ class CourseMembershipDTO extends DataTransferObject implements ICourseMembershi
         $this->courseId = $course_ext_id;
         $this->userId = $user_id;
     }
-    
+
     /**
      * @var int
      */
@@ -57,7 +57,6 @@ class CourseMembershipDTO extends DataTransferObject implements ICourseMembershi
 
     /**
      * @param int $courseId
-     * @return CourseMembershipDTO
      */
     public function setCourseId($courseId) : CourseMembershipDTO
     {
@@ -74,10 +73,6 @@ class CourseMembershipDTO extends DataTransferObject implements ICourseMembershi
         return $this->userId;
     }
 
-    /**
-     * @param int $userId
-     * @return CourseMembershipDTO
-     */
     public function setUserId(int $userId) : CourseMembershipDTO
     {
         $this->userId = $userId;
@@ -104,18 +99,11 @@ class CourseMembershipDTO extends DataTransferObject implements ICourseMembershi
         return $this;
     }
 
-    /**
-     * @return int
-     */
     public function getCourseIdType() : int
     {
         return $this->courseIdType;
     }
 
-    /**
-     * @param int $courseIdType
-     * @return CourseMembershipDTO
-     */
     public function setCourseIdType(int $courseIdType) : CourseMembershipDTO
     {
         $this->courseIdType = $courseIdType;
@@ -123,16 +111,12 @@ class CourseMembershipDTO extends DataTransferObject implements ICourseMembershi
         return $this;
     }
 
-    /**
-     * @return bool
-     */
     public function isContact() : bool
     {
         return $this->isContact;
     }
 
     /**
-     * @param bool $isContact
      * @return $this
      */
     public function setIsContact(bool $isContact)
@@ -141,18 +125,17 @@ class CourseMembershipDTO extends DataTransferObject implements ICourseMembershi
 
         return $this;
     }
-    
+
     /**
-     * @param bool $notification
      * @return $this
      */
     public function setHasNotification(bool $notification)
     {
         $this->hasNotification = $notification;
-    
+
         return $this;
     }
-    
+
     public function hasNotification() : bool
     {
         return $this->hasNotification;

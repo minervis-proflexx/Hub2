@@ -14,11 +14,10 @@ use srag\Plugins\Hub2\Origin\Properties\Course\CourseProperties;
  */
 class ARCourseOrigin extends AROrigin implements ICourseOrigin
 {
-
     /**
      * @inheritdoc
      */
-    protected function getOriginConfig(array $data)
+    protected function getOriginConfig(array $data) : \srag\Plugins\Hub2\Origin\Config\Course\CourseOriginConfig
     {
         return new CourseOriginConfig($data);
     }
@@ -26,7 +25,7 @@ class ARCourseOrigin extends AROrigin implements ICourseOrigin
     /**
      * @inheritdoc
      */
-    protected function getOriginProperties(array $data)
+    protected function getOriginProperties(array $data) : \srag\Plugins\Hub2\Origin\Properties\Course\CourseProperties
     {
         return new CourseProperties($data);
     }

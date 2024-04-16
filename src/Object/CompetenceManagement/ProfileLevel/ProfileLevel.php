@@ -9,7 +9,6 @@ namespace srag\Plugins\Hub2\Object\CompetenceManagement\ProfileLevel;
  */
 class ProfileLevel implements IProfileLevel
 {
-
     /**
      * @var string
      */
@@ -29,10 +28,6 @@ class ProfileLevel implements IProfileLevel
 
     /**
      * ProfileLevel constructor
-     * @param string $skill_id
-     * @param int    $skill_id_type
-     * @param string $level_id
-     * @param int    $level_id_type
      */
     public function __construct(
         string $skill_id = "",
@@ -120,6 +115,7 @@ class ProfileLevel implements IProfileLevel
 
     /**
      * @inheritdoc
+     * @return array{skill_id: string, skill_id_type: int, level_id: string, level_id_type: int}
      */
     public function jsonSerialize() : array
     {

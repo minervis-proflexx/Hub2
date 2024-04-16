@@ -9,15 +9,11 @@ namespace srag\Plugins\Hub2\Object;
  */
 interface IDidacticTemplateAwareObject
 {
-
     /**
      * @var string key for associative arrays
      */
     public const F_NAME_TEMPLATE_ID = 'id';
 
-    /**
-     * @param int $id
-     */
     public function setDidacticTemplateId(int $id);
 
     /**

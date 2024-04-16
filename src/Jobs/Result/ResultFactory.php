@@ -11,9 +11,7 @@ use ilCronJobResult;
  */
 final class ResultFactory
 {
-
     /**
-     * @param string $message
      * @return AbstractResult
      */
     public static function ok(string $message) : ilCronJobResult
@@ -22,7 +20,6 @@ final class ResultFactory
     }
 
     /**
-     * @param string $message
      * @return AbstractResult
      */
     public static function error(string $message) : ilCronJobResult
@@ -35,6 +32,5 @@ final class ResultFactory
      */
     private function __construct()
     {
-
     }
 }

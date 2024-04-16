@@ -11,16 +11,15 @@ use srag\Plugins\Hub2\Metadata\IMetadata;
  */
 trait MetadataAwareDataTransferObject
 {
-
     /**
      * @var IMetadata[]
      */
-    private $_meta_data = array();
+    private $_meta_data = [];
 
     /**
      * @inheritdoc
      */
-    public function addMetadata(IMetadata $IMetadata) : IMetadataAwareDataTransferObject
+    public function addMetadata(IMetadata $IMetadata): IMetadataAwareDataTransferObject
     {
         $this->_meta_data[$IMetadata->getRecordId() . '_' . $IMetadata->getIdentifier()] = $IMetadata;
 
@@ -30,8 +29,8 @@ trait MetadataAwareDataTransferObject
     /**
      * @return IMetadata[]
      */
-    public function getMetaData() : array
+    public function getMetaData(): array
     {
-        return is_array($this->_meta_data) ? $this->_meta_data : [];
+        return $this->_meta_data;
     }
 }

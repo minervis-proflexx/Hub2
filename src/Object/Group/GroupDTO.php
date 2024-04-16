@@ -15,7 +15,6 @@ use srag\Plugins\Hub2\Object\DTO\TaxonomyAwareDataTransferObject;
  */
 class GroupDTO extends DataTransferObject implements IGroupDTO
 {
-
     use MetadataAwareDataTransferObject;
     use TaxonomyAwareDataTransferObject;
     use MappingStrategyAwareDataTransferObject;
@@ -40,11 +39,11 @@ class GroupDTO extends DataTransferObject implements IGroupDTO
     /**
      * @var int
      */
-    protected $registerMode;
+    protected $registrationType;
     /**
-     * @var bool
+     * @var null|bool
      */
-    protected $regUnlimited;
+    protected $regUnlimited = null;
     /**
      * @var int timestamp
      */
@@ -64,33 +63,33 @@ class GroupDTO extends DataTransferObject implements IGroupDTO
     /**
      * @var bool
      */
-    protected $regMembershipLimitation;
+    protected $regMembershipLimitation = false;
     /**
-     * @var int
+     * @var null|int
      */
-    protected $minMembers;
+    protected $minMembers = null;
     /**
-     * @var int
+     * @var null|int
      */
-    protected $maxMembers;
-    /**
-     * @var bool
-     */
-    protected $waitingList;
+    protected $maxMembers = null;
     /**
      * @var bool
      */
-    protected $waitingListAutoFill;
+    protected $waitingList = false;
+    /**
+     * @var bool
+     */
+    protected $waitingListAutoFill = false;
     /**
      * @var int timestamp
      */
     protected $cancellationEnd;
     /**
-     * @var int timestamp
+     * @var \ilDateTime
      */
     protected $start;
     /**
-     * @var int timestamp
+     * @var \ilDateTime
      */
     protected $end;
     /**
@@ -109,14 +108,12 @@ class GroupDTO extends DataTransferObject implements IGroupDTO
      * @var int
      */
     protected $enableGroupMap;
-    /**
-     * @var bool
-     */
-    protected $regAccessCodeEnabled;
+
+    protected $regAccessCodeEnabled = false;
     /**
      * @var string
      */
-    protected $registrationAccessCode;
+    protected $registrationAccessCode = '';
     /**
      * @var int
      */
@@ -172,21 +169,14 @@ class GroupDTO extends DataTransferObject implements IGroupDTO
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getRegisterMode()
+    public function getRegisterMode() : ?int
     {
-        return $this->registerMode;
+        return $this->registrationType;
     }
 
-    /**
-     * @param int $registerMode
-     * @return GroupDTO
-     */
-    public function setRegisterMode($registerMode)
+    public function setRegisterMode(int $registrationType) : self
     {
-        $this->registerMode = $registerMode;
+        $this->registrationType = $registrationType;
 
         return $this;
     }
@@ -248,19 +238,14 @@ class GroupDTO extends DataTransferObject implements IGroupDTO
         return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function getRegUnlimited()
+
+    public function getRegUnlimited() : ?bool
     {
         return $this->regUnlimited;
     }
 
-    /**
-     * @param bool $regUnlimited
-     * @return GroupDTO
-     */
-    public function setRegUnlimited($regUnlimited)
+
+    public function setRegUnlimited(bool $regUnlimited) : self
     {
         $this->regUnlimited = $regUnlimited;
 
@@ -329,7 +314,7 @@ class GroupDTO extends DataTransferObject implements IGroupDTO
      */
     public function getRegMembershipLimitation()
     {
-        return $this->regMembershipLimitation;
+        return $this->regMembershipLimitation ?? false;
     }
 
     /**
@@ -381,29 +366,22 @@ class GroupDTO extends DataTransferObject implements IGroupDTO
         return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function getWaitingList()
+
+    public function getWaitingList() : bool
     {
         return $this->waitingList;
     }
 
-    /**
-     * @param bool $waitingList
-     * @return GroupDTO
-     */
-    public function setWaitingList($waitingList)
+
+    public function setWaitingList(bool $waitingList) : self
     {
         $this->waitingList = $waitingList;
 
         return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function getWaitingListAutoFill()
+
+    public function getWaitingListAutoFill() : bool
     {
         return $this->waitingListAutoFill;
     }
@@ -438,38 +416,28 @@ class GroupDTO extends DataTransferObject implements IGroupDTO
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getStart()
+
+    public function getStart() : ?\ilDateTime
     {
         return $this->start;
     }
 
-    /**
-     * @param int $start
-     * @return GroupDTO
-     */
-    public function setStart($start)
+
+    public function setStart(\ilDateTime $start) : GroupDTO
     {
         $this->start = $start;
 
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getEnd()
+
+    public function getEnd() : ?\ilDateTime
     {
         return $this->end;
     }
 
-    /**
-     * @param int $end
-     * @return GroupDTO
-     */
-    public function setEnd($end)
+
+    public function setEnd(\ilDateTime $end) : GroupDTO
     {
         $this->end = $end;
 
@@ -552,19 +520,14 @@ class GroupDTO extends DataTransferObject implements IGroupDTO
         return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function getRegAccessCodeEnabled()
+
+    public function getRegAccessCodeEnabled() : bool
     {
         return $this->regAccessCodeEnabled;
     }
 
-    /**
-     * @param bool $regAccessCodeEnabled
-     * @return GroupDTO
-     */
-    public function setRegAccessCodeEnabled($regAccessCodeEnabled)
+
+    public function setRegAccessCodeEnabled(bool $regAccessCodeEnabled) : self
     {
         $this->regAccessCodeEnabled = $regAccessCodeEnabled;
 
@@ -647,17 +610,11 @@ class GroupDTO extends DataTransferObject implements IGroupDTO
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getAppointementsColor() : string
     {
         return $this->appointementsColor;
     }
 
-    /**
-     * @param string $appointementsColor
-     */
     public function setAppointementsColor(string $appointementsColor)
     {
         $this->appointementsColor = $appointementsColor;

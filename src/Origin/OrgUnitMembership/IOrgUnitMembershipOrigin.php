@@ -13,14 +13,13 @@ use srag\Plugins\Hub2\Origin\Properties\OrgUnitMembership\IOrgUnitMembershipProp
  */
 interface IOrgUnitMembershipOrigin extends IOrigin
 {
-
     /**
      * @return IOrgUnitMembershipOriginConfig
      */
-    public function config() : IOrgUnitMembershipOriginConfig;
+    public function config(): \srag\Plugins\Hub2\Origin\Config\IOriginConfig;
 
     /**
      * @return IOrgUnitMembershipProperties
      */
-    public function properties() : IOrgUnitMembershipProperties;
+    public function properties(): \srag\Plugins\Hub2\Origin\Properties\IOriginProperties;
 }

@@ -11,13 +11,12 @@ use srag\Plugins\Hub2\Taxonomy\ITaxonomy;
  */
 trait ARTaxonomyAwareObject
 {
-
     /**
      * @var array
      * @db_has_field    true
      * @db_fieldtype    clob
      */
-    protected $taxonomies = array();
+    protected $taxonomies = [];
 
     /**
      * @return ITaxonomy[]
@@ -30,7 +29,7 @@ trait ARTaxonomyAwareObject
     /**
      * @param ITaxonomy[] $taxonomies
      */
-    public function setTaxonomies(array $taxonomies)
+    public function setTaxonomies(array $taxonomies) : void
     {
         $this->taxonomies = $taxonomies;
     }

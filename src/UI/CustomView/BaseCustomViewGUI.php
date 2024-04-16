@@ -4,8 +4,6 @@ namespace srag\Plugins\Hub2\UI\CustomView;
 
 use hub2CustomViewGUI;
 use ilHub2Plugin;
-use srag\DIC\Hub2\DICTrait;
-use srag\Plugins\Hub2\Utils\Hub2Trait;
 
 /**
  * Class BaseCustomViewGUI
@@ -14,11 +12,7 @@ use srag\Plugins\Hub2\Utils\Hub2Trait;
  */
 abstract class BaseCustomViewGUI
 {
-
-    use DICTrait;
-    use Hub2Trait;
-
-    const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
+    public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
     /**
      * @var hub2CustomViewGUI
      */
@@ -26,7 +20,6 @@ abstract class BaseCustomViewGUI
 
     /**
      * BaseCustomViewGUI constructor
-     * @param hub2CustomViewGUI $parent_gui
      */
     public function __construct(hub2CustomViewGUI $parent_gui)
     {
@@ -36,6 +29,6 @@ abstract class BaseCustomViewGUI
     /**
      *
      */
-    public abstract function executeCommand()/*: void*/
+    abstract public function executeCommand()/*: void*/
     ;
 }

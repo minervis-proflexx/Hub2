@@ -3,8 +3,6 @@
 namespace srag\Plugins\Hub2\Sync\Processor;
 
 use ilHub2Plugin;
-use srag\DIC\Hub2\DICTrait;
-use srag\Plugins\Hub2\Utils\Hub2Trait;
 
 /**
  * Class FakeIliasObject
@@ -13,11 +11,7 @@ use srag\Plugins\Hub2\Utils\Hub2Trait;
  */
 abstract class FakeIliasObject
 {
-
-    use DICTrait;
-    use Hub2Trait;
-
-    const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
+    public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
     /**
      * @var string
      */
@@ -32,18 +26,12 @@ abstract class FakeIliasObject
         $this->id = $id;
     }
 
-    /**
-     * @return string
-     */
     public function getId() : string
     {
         return $this->id;
     }
 
-    /**
-     * @param string $id
-     */
-    public function setId(string $id)
+    public function setId(string $id) : void
     {
         $this->id = $id;
     }
@@ -51,5 +39,5 @@ abstract class FakeIliasObject
     /**
      * @return mixed
      */
-    public abstract function initId();
+    abstract public function initId();
 }

@@ -21,7 +21,6 @@ use srag\Plugins\Hub2\Sync\Processor\User\IUserSyncProcessor;
  */
 interface ISyncProcessorFactory
 {
-
     /**
      * @return IUserSyncProcessor
      */
@@ -62,18 +61,9 @@ interface ISyncProcessorFactory
      */
     public function sessionMembership();
 
-    /**
-     * @return IOrgUnitSyncProcessor
-     */
     public function orgUnit() : IOrgUnitSyncProcessor;
 
-    /**
-     * @return IOrgUnitMembershipSyncProcessor
-     */
     public function orgUnitMembership() : IOrgUnitMembershipSyncProcessor;
 
-    /**
-     * @return ICompetenceManagementSyncProcessor
-     */
     public function competenceManagement() : ICompetenceManagementSyncProcessor;
 }

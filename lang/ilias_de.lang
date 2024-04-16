@@ -143,6 +143,7 @@ hub_conf#:#Einstellungen
 hub_courses#:#Kurse
 hub_memberships#:#Mitgliedschaften
 hub_origins#:#Anbindungen
+msg_origin_toggled#:#Status der Anbindung geändert
 hub_users#:#Benutzerkonten
 hub_categories_table_title#:#Kategorien
 hub_courses_table_title#:#Kurse
@@ -194,6 +195,15 @@ origin_form_title_edit#:#Anbindung bearbeiten
 origin_form_field_active#:#Synchronisation aktiv
 origin_form_field_class_name#:#PHP-Klassenname
 origin_form_field_class_name_info#:#Die Klassendatei muss in '%s' vorhanden sein.\nNach dem Speichern versucht Hub, automatisch eine Vorlage für Sie an diesem Ort zu erstellen.
+origin_form_field_conf_type_filedrop#:#File drop
+origin_form_field_conf_type_filedrop_info#:#Eine Datei kann via POST an die folgende URL gesendet werden
+origin_form_field_conf_type_filedrop_url#:#File drop URL
+origin_form_field_conf_type_filedrop_auth_token#:#Bearer Token
+origin_form_field_conf_type_filedrop_method#:#Methode
+origin_form_field_conf_type_filedrop_rid#:#Resource ID
+origin_form_field_conf_type_filedrop_rid_nya#:#noch nicht verfügbar
+origin_form_field_conf_type_filedrop_latest#:#Letzte gespeicherte Lieferung
+origin_form_field_conf_type_filedrop_file#:#Manueller Upload
 origin_form_field_conf_type#:#Verbindungs-Typ
 origin_form_field_conf_type_db#:#Server
 origin_form_field_conf_type_db_database#:#Datenbank
@@ -203,6 +213,9 @@ origin_form_field_conf_type_db_password#:#Kennwort
 origin_form_field_conf_type_db_port#:#Port
 origin_form_field_conf_type_db_search_base#:#Such-Base
 origin_form_field_conf_type_db_username#:#Login-Name
+origin_form_field_conf_type_api#:#API
+origin_form_field_conf_type_api_info#:#Verbindung mit externer API
+origin_form_field_conf_type_api_token#:#Bearer-Token
 origin_form_field_conf_type_external#:#Extern
 origin_form_field_conf_type_external_info#:#Füllen der Hub-Tabelle durch Fremdsystem.
 origin_form_field_conf_type_path#:#Pfad
@@ -430,7 +443,9 @@ competencemanagement_delete_mode#:#Löschverhalten
 competencemanagement_delete_mode_none#:#Keine Aktion
 competencemanagement_delete_mode_delete#:#Löschen
 competencemanagement_move#:#Verschieben
+logs#:#Logs
 logs_additional_data#:#Zusätzliche Daten
+logs_clear_logs#:#Logs löschen
 logs_cron#:#Alte Logs löschen
 logs_cron_description#:#Nach den angegebenen konfigurierten Zeit werden alte Logs automatisch gelöscht. Der neuste Log pro Anbindung-ID und Ext-ID wird immer behalten
 logs_date#:#Datum / Zeit

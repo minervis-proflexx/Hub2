@@ -11,7 +11,6 @@ use srag\Plugins\Hub2\Object\DTO\IDataTransferObject;
  */
 trait MappingStrategyAwareDataTransferObject
 {
-
     /**
      * @var IMappingStrategy
      */
@@ -20,16 +19,16 @@ trait MappingStrategyAwareDataTransferObject
     /**
      * @inheritdoc
      */
-    public function getMappingStrategy() : IMappingStrategy
+    public function getMappingStrategy(): IMappingStrategy
     {
-        return $this->_mapping_strategy ? $this->_mapping_strategy : new None();
+        return $this->_mapping_strategy ?: new None();
     }
 
     /**
      * @inheritdoc
      * @return static
      */
-    public function overrideMappingStrategy(IMappingStrategy $strategy) : IDataTransferObject
+    public function overrideMappingStrategy(IMappingStrategy $strategy): IDataTransferObject
     {
         $this->_mapping_strategy = $strategy;
 

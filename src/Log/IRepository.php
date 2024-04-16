@@ -13,21 +13,10 @@ use stdClass;
  */
 interface IRepository
 {
-
-    /**
-     * @param ILog $log
-     */
     public function deleteLog(ILog $log)/*: void*/ ;
 
-    /**
-     * @param int $keep_old_logs_time
-     * @return int
-     */
     public function deleteOldLogs(int $keep_old_logs_time) : int;
 
-    /**
-     * @return IFactory
-     */
     public function factory() : IFactory;
 
     /**
@@ -78,7 +67,6 @@ interface IRepository
      * @param int|null        $object_ilias_id
      * @param string|null     $additional_data
      * @param int|null        $status
-     * @return int
      */
     public function getLogsCount(
         string $title = null,
@@ -95,36 +83,21 @@ interface IRepository
     ) : int;
 
     /**
-     * @param int $log_id
      * @return ILog|null
      */
     public function getLogById(int $log_id)/*: ?ILog*/ ;
 
-    /**
-     * @return stdClass
-     */
     public function getGlobalAdditionalData() : stdClass;
 
-    /**
-     * @param stdClass $global_additional_data
-     * @return self
-     */
     public function withGlobalAdditionalData(stdClass $global_additional_data) : self;
 
-    /**
-     * @param ILog $log
-     */
     public function keepLog(ILog $log)/*:void*/ ;
 
     /**
-     * @param IOrigin  $origin
      * @param int|null $level
      * @return ILog[]
      */
-    public function getKeptLogs(IOrigin $origin,/*?*/ int $level = null) : array;
+    public function getKeptLogs(IOrigin $origin, /*?*/ int $level = null) : array;
 
-    /**
-     * @param ILog $log
-     */
     public function storeLog(ILog $log)/*: void*/ ;
 }

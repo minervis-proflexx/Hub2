@@ -2,9 +2,6 @@
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
-use srag\DIC\Hub2\DICTrait;
-use srag\Plugins\Hub2\Utils\Hub2Trait;
-
 /**
  * Class ilHub2ConfigGUI
  * @author  Stefan Wanzenried <sw@studer-raimann.ch>
@@ -12,25 +9,31 @@ use srag\Plugins\Hub2\Utils\Hub2Trait;
  */
 class ilHub2ConfigGUI extends ilPluginConfigGUI
 {
+    public const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
+    /**
+     * @var \ilCtrlInterface
+     */
+    private $ctrl;
 
-    use DICTrait;
-    use Hub2Trait;
-
-    const PLUGIN_CLASS_NAME = ilHub2Plugin::class;
+    public function __construct()
+    {
+        global $DIC;
+        $this->ctrl = $DIC->ctrl();
+    }
 
     /**
      * @param string $cmd
      */
     public function performCommand($cmd)
     {
-        switch (self::dic()->ctrl()->getNextClass()) {
+        switch ($this->ctrl->getNextClass()) {
             case strtolower(hub2MainGUI::class):
                 $h = new hub2MainGUI();
-                self::dic()->ctrl()->forwardCommand($h);
+                $this->ctrl->forwardCommand($h);
                 break;
 
             default:
-                self::dic()->ctrl()->redirectByClass([hub2MainGUI::class]);
+                $this->ctrl->redirectByClass([hub2MainGUI::class]);
                 break;
         }
     }

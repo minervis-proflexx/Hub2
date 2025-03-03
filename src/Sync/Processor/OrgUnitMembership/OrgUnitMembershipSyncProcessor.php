@@ -104,7 +104,9 @@ class OrgUnitMembershipSyncProcessor extends ObjectSyncProcessor implements IOrg
                     ]
                 )->first();
 
-                $assignment->delete();
+                if ($assignment !== null) {
+                    $assignment->delete();
+                }
                 break;
 
             case IOrgUnitMembershipProperties::DELETE_MODE_NONE:
